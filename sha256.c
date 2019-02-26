@@ -1,12 +1,13 @@
-// Kevin Barry
-// Theory Of Algorithms
+// Author: 		Kevin Barry
+// Module: 		Theory Of Algorithms
+// Description:	SHA-256
 
 #include <stdio.h>
 #include <stdint.h>
 
 void sha256();
 
-// See section 4.1.2-
+// See section 4.1.2
 // declaration of sigma
 uint32_t sig0(uint32_t x);
 uint32_t sig1(uint32_t x);
@@ -47,11 +48,12 @@ void sha256()
 	// The current message block.
 	uint32_t M[16];
 
-	// For looping Hash Computation.
+	// ================================ Hash Computation ================================
 	// Each meessage block is processed in order.
+
 	int t;
 
-	// Step 1
+	// ================================ Step 1
 	// Page 22, W[t]= M[t] for 0 <= t <= 15.
 	// W is word in message.
 	for (t = 0; t < 16; t++)
@@ -65,7 +67,7 @@ void sha256()
 		sig1(W[t - 2]) + W[t - 7] + sig0(W[t - 15]) + W[t - 16];
 	}
 
-	// Step 2
+	// ================================ Step 2
 	// Initialize a,b,c, ... ,h as per step 2, Page 22.
 	// Initialize the eight working variables, a, b, c, d, e, f, g,  and h, with the (i-1)st hash value:
 	a = H[0];
@@ -77,7 +79,7 @@ void sha256()
 	f = H[6];
 	f = H[7];
 
-	// Step 3.
+	// ================================ Step 3.
 	// create new values for working variables.
 	for (t = 0; t < 64; t++)
 	{
@@ -93,7 +95,7 @@ void sha256()
 		a = T1 + T2;
 	}
 
-	// Step 4.
+	// ================================ Step 4.
 	// Compute the ith intermediate hash value H(i):
 	H[0] = a + H[0];
 	H[1] = b + H[1];
@@ -106,6 +108,7 @@ void sha256()
 
 } // void sha256()
 
+// ================================ Bit operations ================================
 // rotate right
 // See section 3.2
 uint32_t rotr(uint32_t n, uint32_t x)
