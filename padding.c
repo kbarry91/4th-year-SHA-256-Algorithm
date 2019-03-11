@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 
     // Current number of bytes read.
     uint64_t nobytes;
+
     // Current number of bits read.
     uint64_t nobits = 0;
 
@@ -42,11 +43,12 @@ int main(int argc, char *argv[])
         nobytes = fread(M.e, 1, 64, file);
         // Add 8 bits for each byte;
         nobits = nobits + (nobytes * 8);
-
+        
+        printf("Read %2llu bytes\n", nobytes);
         // Check if less than 56 bytes.
         if (nobytes < 56)
         {
-            printf("Block found with less than 55 bytes!\n");
+            printf("Block found with less than 55 bytes !\n");
 
             // Change to one byte.
             // M.e[nobytes]= 0x01; // 00000001
@@ -68,7 +70,7 @@ int main(int argc, char *argv[])
 
     // Close the file.
     fclose(file);
-    
+
     for(int i = 0; i < 64; i++)
     {
         // Print elements of M as 64 individual bytes.
