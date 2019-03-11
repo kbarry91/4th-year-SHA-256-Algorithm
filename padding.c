@@ -22,8 +22,10 @@ int main(int argc, char *argv[])
     // Define union message block instance.
     union msgblock M;
 
-    // Used in future
+    // Current number of bytes read.
     uint64_t nobytes;
+    // Current number of bits read.
+    uint64_t nobits = 0;
 
     // File pointer
     FILE *file;
@@ -38,18 +40,42 @@ int main(int argc, char *argv[])
     while (!feof(file))
     {
         nobytes = fread(M.e, 1, 64, file);
+        // Add 8 bits for each byte;
+        nobits = nobits + (nobytes * 8);
 
-        // Check if less than 55 bytes.
-        if (nobytes < 55)
+        // Check if less than 56 bytes.
+        if (nobytes < 56)
         {
-            printf("Block found with less than 55 bytes\n");
+            printf("Block found with less than 55 bytes!\n");
+
+            // Change to one byte.
+            // M.e[nobytes]= 0x01; // 00000001
+            M.e[nobytes] = 0x80; // 00000001
+
+            while (nobytes < 56)
+            {
+                nobytes = nobytes + 1; // Add one as index into block.
+                M.e[nobytes] = 0x00;   // Set all bytes to 0.
+            }
+            // Set last 4 bytes as 64 biit integer as number of bits read from file.
+
+            // Set last element to nobits.
+            M.s[7] = nobits;
         }
         // Number of bytes that have been read from file.
-        printf("%11u\n", nobytes);
+        //printf("%11u\n", nobytes);
     }
 
     // Close the file.
     fclose(file);
+    
+    for(int i = 0; i < 64; i++)
+    {
+        // Print elements of M as 64 individual bytes.
+        printf("%x ", M.e[i]);
+        printf("\n");
+    }
+    
 
     return 0;
 }
