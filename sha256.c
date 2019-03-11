@@ -88,6 +88,7 @@ void sha256()
 		// W is word in message.
 		for (t = 0; t < 16; t++)
 		{
+			// Copy M to W
 			W[t] = M[t];
 		}
 
@@ -142,6 +143,10 @@ void sha256()
 	printf("%x %x %x %x %x %x %x %x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 
 } // void sha256()
+
+
+
+
 
 // ================================ Bit operations ================================
 
