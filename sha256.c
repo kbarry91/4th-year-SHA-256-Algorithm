@@ -2,9 +2,32 @@
 // Module: 		Theory Of Algorithms
 // Description:	SHA-256 as defined at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 
-#include <stdio.h>
-#include <stdint.h>
+#include <stdio.h>  // IO header file.
+#include <stdint.h> // For fixed bit length integers.
 
+/**
+ * e to access as 8 bit integers.
+ * t to access as 32 bit integer.
+ * s to access as 64 bit integer.
+ * 
+ * This union represnts message block and  allows every element to be saved in same memory location.
+ * Values are the same but being read differently.
+ * 
+ */
+union msgblock {
+    uint8_t e[64];  // 8*64 = 512 bits
+    uint32_t t[16]; // 32*16 = 512 bits
+    uint64_t s[8];  // 64*8 = 512 bits
+};
+
+// Flags to track state of padding status.stores(0,1,2,3)
+enum status
+{
+    READ,
+    PAD0,
+    PAD1,// message was multiple of 64 bytes
+    FINISH
+};
 void sha256();
 
 // See section 4.1.2
