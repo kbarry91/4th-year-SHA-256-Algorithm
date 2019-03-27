@@ -63,10 +63,12 @@ int main(int argc, char *argv[])
 	// File pointer
 	FILE *file;
 
-	// Open the file.================ TODO ERROR CHECK
+	// Open the file from first cmdline argument.
+	//.================ TODO ERROR CHECK
 	file = fopen(argv[1], "r");
 
-	printf("Sha-256\n");
+	printf("========= Secure Hash Algorithim ========= \n");
+	// Run Secure Hash Algorithim on the file.
 	sha256(file);
 
 	return 0;
@@ -324,76 +326,87 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 		return 1;
 	}
 
+	// IF we enter here,we havnt finsihed reading the file (S == READ)
+	nobytes = fread(M->e, 1, 64, file); // read 64 bytes at a time from file into M->e.
+	//printf("Read %2llu bytes\n", nobytes);
 
-		nobytes = fread(M.e, 1, 64, file); // read 64 bytes at a time from file into M.e.
-		printf("Read %2llu bytes\n", nobytes);
-		// Add 8 bits for each byte;
-		nobits = nobits + (nobytes * 8);
+	// Add 8 bits for each byte;
+	// Keep track of number of bytes read.
+	*nobits = *nobits + (nobytes * 8);
 
-		// Check if less than 56 bytes.
-		if (nobytes < 56)
+	// Check if less than 56 bytes have been read.
+	// If so put all padding in this message block.
+	if (nobytes < 56)
+	{
+		//printf("Block found with less than 55 bytes !\n");
+
+		// Change to one byte.
+		// M.e[nobytes]= 0x01; // 00000001
+		// Add one bit as per the standard.
+		M->e[nobytes] = 0x80; // 00000001
+
+		// Add 0 bits until last 64bits.
+		while (nobytes < 56)
 		{
-			printf("Block found with less than 55 bytes !\n");
+			nobytes = nobytes + 1; // Add one as index into block.((actually loop var))
+			M->e[nobytes] = 0x00;  // Set all bytes to 0.
+			printf("[DEBUG set bytes to 0  \n");
+		}
+		// Set last 4 bytes as 64 biit integer as number of bits read from file.
 
-			// Change to one byte.
-			// M.e[nobytes]= 0x01; // 00000001
-			M.e[nobytes] = 0x80; // 00000001
+		// Set last element to nobits(number of bits in origonal msg).
+		// Append the file size in bits as a (should be big-endian) unsigned 64bit int.
+		M.s[7] = nobits; // TODO  make sure its big indian integer
 
-			while (nobytes < 56)
-			{
-				nobytes = nobytes + 1; // Add one as index into block.((actually loop var))
-				M.e[nobytes] = 0x00;   // Set all bytes to 0.
-				printf("[DEBUG set bytes to 0  \n");
-			}
-			// Set last 4 bytes as 64 biit integer as number of bits read from file.
-
-			// Set last element to nobits(number of bits in origonal msg).
-			M.s[7] = nobits; // TODO  make sure its big indian integer
-			// set to finish stat
-			printf("[DEBUGat todo\n");
-			/*
+		/*
             printf("[DEBUG todollu]nobits %2llu \n",nobits);
             printf("[DEBUG tdodx]nobits %x \n",nobits);
             printf("[DEBUG d]nobits %d \n",nobits);
             printf("[Debug noobitsinhex] %016llX\n", nobits);
             */
-			S = FINISH;
-		}
-		// If 56 to 64 bytes read we have to have an extra message block full of padding
-		// cannot append "1" and add a 64 bit integer to the original message block
-		else if (nobytes < 64)
-		{
-			S = PAD0;			 // need another message block
-			M.e[nobytes] = 0x80; // append 1
+		// Set6 S to FINISH state.
+		*S = FINISH;
+	}
+	// If 56 to 64 bytes read we have to have an extra message block full of padding
+	// cannot append "1" and add a 64 bit integer to the original message block
+	// IANS COMMENT- otherwise check if we can put some padding into this msgblock.
+	else if (nobytes < 64)
+	{
+		// Tell S we need another messageblock with padding but no 1 bit
+		*S = PAD0; // need another message block
+		// Put the 1 bit into the current block.
+		M->e[nobytes] = 0x80; // append 1
 
-			// add some padding to the current message block
-			while (nobytes < 64)
-			{
-				nobytes = nobytes + 1;
-				M.e[nobytes] = 0x00; // fill block with "0"
-				printf("[DEBUG set bytes to 0  \n");
-
-			} // end while
-		}
-		// If I have finished reading everything from the file and it was exactly 512 bits in length
-		// i.e I kept reading 64 bytes from the file & the last time I read from the file
-		// I read 64 bytes and it brought me to the exact end of the file
-		else if (feof(file))
+		// add some padding to the current message block
+		// IANS COMMENT - pad rest of block with 0 bits
+		while (nobytes < 64)
 		{
-			S = PAD1;
-		}
+			nobytes = nobytes + 1;
+			M.e[nobytes] = 0x00; // fill block with "0"
+								 //printf("[DEBUG set bytes to 0  \n");
+
+		} // end while
+	}
+	// If I have finished reading everything from the file and it was exactly 512 bits in length
+	// i.e I kept reading 64 bytes from the file & the last time I read from the file
+	// I read 64 bytes and it brought me to the exact end of the file
+	// IANS COMMENT - otherwise check if we are the the end of file and if there is more to read.
+	else if (feof(file))
+	{
+		// Tell S that we need a message block with all the padding.
+		*S = PAD1;
+	}
 
 	
-	// Close the file.
-	fclose(file);
 
-// DEBUG
+	// DEBUG
 	for (int i = 0; i < 64; i++)
 	{
 		// Print elements of M as 64 individual bytes.
-		printf("%x ", M.e[i]);
+		printf("%x ", M->e[i]);
 	}
 	printf("\n");
 
-	return 0;
+	// If we get this far , then return 1 to call this function again.
+	return 1;
 }
