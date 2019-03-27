@@ -73,12 +73,20 @@ int main(int argc, char *argv[])
             {
                 nobytes = nobytes + 1; // Add one as index into block.((actually loop var))
                 M.e[nobytes] = 0x00;   // Set all bytes to 0.
+                printf("[DEBUG set bytes to 0  \n");
+
             }
             // Set last 4 bytes as 64 biit integer as number of bits read from file.
 
             // Set last element to nobits(number of bits in origonal msg).
             M.s[7] = nobits; // TODO  make sure its big indian integer
             // set to finish stat
+            printf("[DEBUGat todo\n");
+
+            printf("[DEBUG todollu]nobits %2llu \n",nobits);
+            printf("[DEBUG tdodx]nobits %x \n",nobits);
+            printf("[DEBUG d]nobits %d \n",nobits);
+            printf("[Debug noobitsinhex] %016llX\n", nobits);
             S = FINISH;
         }
         // If 56 to 64 bytes read we have to have an extra message block full of padding
@@ -93,6 +101,8 @@ int main(int argc, char *argv[])
             {
                 nobytes = nobytes + 1;
                 M.e[nobytes] = 0x00; // fill block with "0"
+                printf("[DEBUG set bytes to 0  \n");
+
             }                        // end while
         }
         // If I have finished reading everything from the file and it was exactly 512 bits in length
@@ -109,9 +119,16 @@ int main(int argc, char *argv[])
     // which represents the number of bits in the original message
     if (S == PAD0 || S == PAD1)
     {
-        for (i = 0; i < 56; i++)
+        for (i = 0; i < 56; i++){
             M.e[i] = 0x00;
+            printf("[DEBUG set bytes to 0  \n");
+
+        }
         M.s[7] = nobits;
+        printf("[DEBUG x](S == PAD0 || S == PAD1)");
+
+        printf("[DEBUG llu]nobits %llu",nobits);
+        printf("[DEBUG x]nobits %x",nobits);
     }
     if (S == PAD1)
     {
