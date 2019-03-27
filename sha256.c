@@ -50,7 +50,7 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 // pointer to msgblock
 // pointer to status
 // number of bits
-int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits);
+int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits);
 
 // Calculate the SHA256 hash of a file
 void sha256(FILE *file);
@@ -191,7 +191,7 @@ void sha256(FILE *file)
 	} // End of while loop.
 
 	// Testing
-	printf("%x %x %x %x %x %x %x %x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 
 } // void sha256()
 
@@ -284,7 +284,7 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z)
  * pointer to status
  * number of bits
  */
-int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
+int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits)
 {
 
 	// Current number of bytes read(returnes) from fread.
@@ -320,7 +320,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 		//printf("[DEBUG x]nobits %x", nobits);
 
 		// If S is PAD1, then set first bit of M to one.
-		if (S == PAD1)
+		if (*S == PAD1)
 		{
 			M->e[0] = 0x80; // add a "1"
 		}
@@ -357,7 +357,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 
 		// Set last element to nobits(number of bits in origonal msg).
 		// Append the file size in bits as a (should be big-endian) unsigned 64bit int.
-		M->s[7] = nobits; // TODO  make sure its big indian integer
+		M->s[7] = *nobits; // TODO  make sure its big indian integer
 
 		/*
             printf("[DEBUG todollu]nobits %2llu \n",nobits);
