@@ -61,10 +61,10 @@ void sha256(FILE *file);
 int main(int argc, char *argv[])
 {
 	// File pointer
-    FILE *file;
-    
-    // Open the file.================ TODO ERROR CHECK
-    file = fopen(argv[1], "r");
+	FILE *file;
+
+	// Open the file.================ TODO ERROR CHECK
+	file = fopen(argv[1], "r");
 
 	printf("Sha-256\n");
 	sha256(file);
@@ -76,15 +76,15 @@ int main(int argc, char *argv[])
 */
 void sha256(FILE *file)
 {
-  // Define union  current message block instance.
-    union msgblock M;
+	// Define union  current message block instance.
+	union msgblock M;
 
-    // Current number of bits read from file.
-    uint64_t nobits = 0;
+	// Current number of bits read from file.
+	uint64_t nobits = 0;
 
 	// set status to read() status of message block in terms of padding
-    enum status S = READ; 
-    // TODO add check file success!!!!!
+	enum status S = READ;
+	// TODO add check file success!!!!!
 
 	/*
  * The K constants.
@@ -121,8 +121,6 @@ void sha256(FILE *file)
 		0x1f83d9ab,
 		0x5be0cd19};
 
-	
-
 	// ================================ Hash Computation ================================
 	// Each meessage block is processed in order.
 
@@ -130,8 +128,8 @@ void sha256(FILE *file)
 	int i, t;
 
 	// Iterate through message blocks as per page 22.
-	while(nextmsgblock(file, M, S,nobits))
-//	for (i = 0; i < 1; i++)
+	while (nextmsgblock(file, M, S, nobits))
+	//	for (i = 0; i < 1; i++)
 	{
 
 		// ================================ Step 1
@@ -275,123 +273,127 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z)
 	return ((x & y) ^ (x & z) ^ (y & z));
 }
 
-// Retrieve next message block
-// pass in file
-// pointer to msgblock
-// pointer to status
-// number of bits
-int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits){
-	  // Define union message block instance.
-    union msgblock M;
+/**
+ * Retrieve next message block
+ * pass in file
+ * pointer to msgblock
+ * pointer to status
+ * number of bits
+ */
+int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
+{
 
-    // Current number of bytes read from fread.
-    uint64_t nobytes;
+	// Current number of bytes read(returnes) from fread.
+	uint64_t nobytes;
 
-    // Current number of bits read.
-    uint64_t nobits = 0;
+	// loop variable.
+	int i;
 
-    enum status S = READ; // set status to read
+	// Check if we have finished all msgblocks then S == Finish.
+	if (*S == FINISH)
+		return 0;
 
-    // File pointer
-  //  FILE *file;
-    char c;
-    int i;
-    // Open the file.
-  //  file = fopen(argv[1], "r");
-    // TODO add check file success!!!!!
+	// If status is PAD0 or PAD1 add block padding where first 448 bits are 0's
+	// in the last block, put in the 64 bit big endian integer
+	// which represents the number of bits in the original message
 
-    // TODO must adaptdeal with error f.error!!!!!!
-    // As of section 5.2.1
-    while (S == READ)
-    {
-        nobytes = fread(M.e, 1, 64, file); // read 64 bytes at a time from file into M.e.
-        printf("Read %2llu bytes\n", nobytes);
-        // Add 8 bits for each byte;
-        nobits = nobits + (nobytes * 8);
+	// IANS COMMENT - otherwise,check if we another block of padding.
+	if (*S == PAD0 || *S == PAD1)
+	{
+		// Set first 56 bytes to all zero bits.
+		for (i = 0; i < 56; i++)
+		{
+			M->e[i] = 0x00;
+			printf("[DEBUG set bytes to 0  \n");
+		}
+		// Set the last 64 bits to th number of bits in the file( should be big-endian)
+		M->s[7] = *nobits;
+		// set state to finish
+		*S = FINISH;
 
-        // Check if less than 56 bytes.
-        if (nobytes < 56)
-        {
-            printf("Block found with less than 55 bytes !\n");
+		//printf("[DEBUG x](S == PAD0 || S == PAD1)");
+		//printf("[DEBUG llu]nobits %llu", nobits);
+		//printf("[DEBUG x]nobits %x", nobits);
 
-            // Change to one byte.
-            // M.e[nobytes]= 0x01; // 00000001
-            M.e[nobytes] = 0x80; // 00000001
+		// If S is PAD1, then set first bit of M to one.
+		if (S == PAD1)
+		{
+			M.e[0] = 0x80; // add a "1"
+		}
+		// Keep the loop in sha256 going for one more iteration.
+		return 1;
+	}
 
-            while (nobytes < 56)
-            {
-                nobytes = nobytes + 1; // Add one as index into block.((actually loop var))
-                M.e[nobytes] = 0x00;   // Set all bytes to 0.
-                printf("[DEBUG set bytes to 0  \n");
-            }
-            // Set last 4 bytes as 64 biit integer as number of bits read from file.
 
-            // Set last element to nobits(number of bits in origonal msg).
-            M.s[7] = nobits; // TODO  make sure its big indian integer
-            // set to finish stat
-            printf("[DEBUGat todo\n");
-            /*
+		nobytes = fread(M.e, 1, 64, file); // read 64 bytes at a time from file into M.e.
+		printf("Read %2llu bytes\n", nobytes);
+		// Add 8 bits for each byte;
+		nobits = nobits + (nobytes * 8);
+
+		// Check if less than 56 bytes.
+		if (nobytes < 56)
+		{
+			printf("Block found with less than 55 bytes !\n");
+
+			// Change to one byte.
+			// M.e[nobytes]= 0x01; // 00000001
+			M.e[nobytes] = 0x80; // 00000001
+
+			while (nobytes < 56)
+			{
+				nobytes = nobytes + 1; // Add one as index into block.((actually loop var))
+				M.e[nobytes] = 0x00;   // Set all bytes to 0.
+				printf("[DEBUG set bytes to 0  \n");
+			}
+			// Set last 4 bytes as 64 biit integer as number of bits read from file.
+
+			// Set last element to nobits(number of bits in origonal msg).
+			M.s[7] = nobits; // TODO  make sure its big indian integer
+			// set to finish stat
+			printf("[DEBUGat todo\n");
+			/*
             printf("[DEBUG todollu]nobits %2llu \n",nobits);
             printf("[DEBUG tdodx]nobits %x \n",nobits);
             printf("[DEBUG d]nobits %d \n",nobits);
             printf("[Debug noobitsinhex] %016llX\n", nobits);
             */
-            S = FINISH;
-        }
-        // If 56 to 64 bytes read we have to have an extra message block full of padding
-        // cannot append "1" and add a 64 bit integer to the original message block
-        else if (nobytes < 64)
-        {
-            S = PAD0;            // need another message block
-            M.e[nobytes] = 0x80; // append 1
+			S = FINISH;
+		}
+		// If 56 to 64 bytes read we have to have an extra message block full of padding
+		// cannot append "1" and add a 64 bit integer to the original message block
+		else if (nobytes < 64)
+		{
+			S = PAD0;			 // need another message block
+			M.e[nobytes] = 0x80; // append 1
 
-            // add some padding to the current message block
-            while (nobytes < 64)
-            {
-                nobytes = nobytes + 1;
-                M.e[nobytes] = 0x00; // fill block with "0"
-                printf("[DEBUG set bytes to 0  \n");
+			// add some padding to the current message block
+			while (nobytes < 64)
+			{
+				nobytes = nobytes + 1;
+				M.e[nobytes] = 0x00; // fill block with "0"
+				printf("[DEBUG set bytes to 0  \n");
 
-            } // end while
-        }
-        // If I have finished reading everything from the file and it was exactly 512 bits in length
-        // i.e I kept reading 64 bytes from the file & the last time I read from the file
-        // I read 64 bytes and it brought me to the exact end of the file
-        else if (feof(file))
-        {
-            S = PAD1;
-        }
-    } // read while
+			} // end while
+		}
+		// If I have finished reading everything from the file and it was exactly 512 bits in length
+		// i.e I kept reading 64 bytes from the file & the last time I read from the file
+		// I read 64 bytes and it brought me to the exact end of the file
+		else if (feof(file))
+		{
+			S = PAD1;
+		}
 
-    // If status is PAD0 or PAD1 add block padding where first 448 bits are 0's
-    // in the last block, put in the 64 bit big endian integer
-    // which represents the number of bits in the original message
-    if (S == PAD0 || S == PAD1)
-    {
-        for (i = 0; i < 56; i++)
-        {
-            M.e[i] = 0x00;
-            printf("[DEBUG set bytes to 0  \n");
-        }
-        M.s[7] = nobits;
-        printf("[DEBUG x](S == PAD0 || S == PAD1)");
+	
+	// Close the file.
+	fclose(file);
 
-        printf("[DEBUG llu]nobits %llu", nobits);
-        printf("[DEBUG x]nobits %x", nobits);
-    }
-    if (S == PAD1)
-    {
-        M.e[0] = 0x80; // add a "1"
-    }
-    // Close the file.
-    fclose(file);
+// DEBUG
+	for (int i = 0; i < 64; i++)
+	{
+		// Print elements of M as 64 individual bytes.
+		printf("%x ", M.e[i]);
+	}
+	printf("\n");
 
-    for (int i = 0; i < 64; i++)
-    {
-        // Print elements of M as 64 individual bytes.
-        printf("%x ", M.e[i]);
-    }
-    printf("\n");
-
-    return 0;
+	return 0;
 }
