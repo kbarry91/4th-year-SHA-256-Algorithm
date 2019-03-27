@@ -1,7 +1,7 @@
 // Author: 		Kevin Barry
 // Module: 		Theory Of Algorithms
 // Description:	SHA-256 as defined at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
-
+// Tested using : https://emn178.github.io/online-tools/sha256_checksum.html
 #include <stdio.h>  // IO header file.
 #include <stdint.h> // For fixed bit length integers.
 
@@ -52,6 +52,8 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 // number of bits
 int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits);
 
+// Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
+#define SWAP_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 // Calculate the SHA256 hash of a file
 void sha256(FILE *file);
 
@@ -190,9 +192,14 @@ void sha256(FILE *file)
 
 	} // End of while loop.
 
-	// Testing
+	// Testing pprinting has value
 	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-
+	// printing hash as big indian 
+	printf("%x %x %x %x %x %x %x %x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
+		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
+		   // printing hash as big indian 
+	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
+		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
 } // void sha256()
 
 // ================================ Bit operations ================================
@@ -334,7 +341,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 
 	// Add 8 bits for each byte;
 	// Keep track of number of bytes read.
-	*nobits = *nobits + (nobytes * 8);
+	*nobits += (nobytes * 8);
 
 	// Check if less than 56 bytes have been read.
 	// If so put all padding in this message block.
@@ -384,7 +391,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 		{
 			nobytes = nobytes + 1;
 			M->e[nobytes] = 0x00; // fill block with "0"
-								 //printf("[DEBUG set bytes to 0  \n");
+								  //printf("[DEBUG set bytes to 0  \n");
 
 		} // end while
 	}
