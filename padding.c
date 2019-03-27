@@ -3,7 +3,7 @@
 // Description:	SHA-256 as defined at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 // Padding the Messageas described in section 5.1 and 5.1.1 of the sha 256 standard
 
-#include <stdio.h>  // IO header file.
+#include <stdio.h>  // IO header file
 #include <stdint.h> // For fixed bit length integers.
 
 /**
