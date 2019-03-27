@@ -55,6 +55,8 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits);
 // Calculate the SHA256 hash of a file
 void sha256(FILE *file);
 
+// ================================ Main Method ================================
+
 /*
 * The main method.
 */
@@ -73,6 +75,8 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+// ================================ SHA 256 Hash Computation ================================
+
 /**
  * Sha256
 */
@@ -113,6 +117,7 @@ void sha256(FILE *file)
 
 	// The hash value (section 6.2).
 	// The values come from section 5.3.3
+	// SHOULD MALLOC THIS (SO ITS ON HEAP)
 	uint32_t H[8] = {
 		0x6a09e667,
 		0xbb67ae85,
@@ -130,7 +135,7 @@ void sha256(FILE *file)
 	int i, t;
 
 	// Iterate through message blocks as per page 22.
-	while (nextmsgblock(file, M, S, nobits))
+	while (nextmsgblock(file, &M, &S, &nobits))
 	//	for (i = 0; i < 1; i++)
 	{
 
@@ -138,16 +143,11 @@ void sha256(FILE *file)
 		// Page 22, W[t]= M[t] for 0 <= t <= 15.
 		// W is word in message.
 		for (t = 0; t < 16; t++)
-		{
-			// Copy M to W
-			W[t] = M.t[t];
-		}
+			W[t] = M.t[t]; // Copy M to W
 
 		// Page 22, W[t]= ...
 		for (t = 16; t < 64; t++)
-		{
 			W[t] = sig1(W[t - 2]) + W[t - 7] + sig0(W[t - 15]) + W[t - 16];
-		}
 
 		// ================================ Step 2
 		// Initialize a,b,c, ... ,h as per step 2, Page 22.
@@ -188,7 +188,7 @@ void sha256(FILE *file)
 		H[6] = g + H[6];
 		H[7] = h + H[7];
 
-	} // end of outter loop
+	} // End of while loop.
 
 	// Testing
 	printf("%x %x %x %x %x %x %x %x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
@@ -275,6 +275,8 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z)
 	return ((x & y) ^ (x & z) ^ (y & z));
 }
 
+// ================================ NEXT MESSAGE BLOCK ================================
+
 /**
  * Retrieve next message block
  * pass in file
@@ -320,7 +322,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 		// If S is PAD1, then set first bit of M to one.
 		if (S == PAD1)
 		{
-			M.e[0] = 0x80; // add a "1"
+			M->e[0] = 0x80; // add a "1"
 		}
 		// Keep the loop in sha256 going for one more iteration.
 		return 1;
@@ -341,7 +343,6 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 		//printf("Block found with less than 55 bytes !\n");
 
 		// Change to one byte.
-		// M.e[nobytes]= 0x01; // 00000001
 		// Add one bit as per the standard.
 		M->e[nobytes] = 0x80; // 00000001
 
@@ -356,7 +357,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 
 		// Set last element to nobits(number of bits in origonal msg).
 		// Append the file size in bits as a (should be big-endian) unsigned 64bit int.
-		M.s[7] = nobits; // TODO  make sure its big indian integer
+		M->s[7] = nobits; // TODO  make sure its big indian integer
 
 		/*
             printf("[DEBUG todollu]nobits %2llu \n",nobits);
@@ -382,7 +383,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 		while (nobytes < 64)
 		{
 			nobytes = nobytes + 1;
-			M.e[nobytes] = 0x00; // fill block with "0"
+			M->e[nobytes] = 0x00; // fill block with "0"
 								 //printf("[DEBUG set bytes to 0  \n");
 
 		} // end while
@@ -396,8 +397,6 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, int *nobits)
 		// Tell S that we need a message block with all the padding.
 		*S = PAD1;
 	}
-
-	
 
 	// DEBUG
 	for (int i = 0; i < 64; i++)
