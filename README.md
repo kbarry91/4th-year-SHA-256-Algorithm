@@ -25,7 +25,10 @@
    -   then last 64 are num bits in origonal file
 
 ## Testing
-Tested sha256 using a copy of README called TESTFILE.md using [this online respource](https://emn178.github.io/online-tools/sha256_checksum.html).
+Tested sha256 using a copy of README called TESTFILE.md.
+In other to verify the resulys each checksum was compared with the results got from 2 resources
+1. [sha256_checksum](https://emn178.github.io/online-tools/sha256_checksum.html).
+2. [onlinemd5](http://onlinemd5.com/).
 
 ### Test 1
 printing as : 	

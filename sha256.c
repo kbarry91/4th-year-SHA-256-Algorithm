@@ -61,7 +61,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 unsigned int LitToBigEndian(unsigned int x);
 unsigned int LitToBigEndian(unsigned int x)
 {
-	return (((x>>24) & 0x000000ff) | ((x>>8) & 0x0000ff00) | ((x<<8) & 0x00ff0000) | ((x<<24) & 0xff000000));
+	return (((x >> 24) & 0x000000ff) | ((x >> 8) & 0x0000ff00) | ((x << 8) & 0x00ff0000) | ((x << 24) & 0xff000000));
 }
 // Calculate the SHA256 hash of a file
 void sha256(FILE *file);
@@ -81,11 +81,23 @@ int main(int argc, char *argv[])
 	file = fopen(argv[1], "r");
 
 	printf("========= Secure Hash Algorithim ========= \n");
-	// Run Secure Hash Algorithim on the file.
-	sha256(file);
+
+	// Confirm check on file
+	if (file == NULL)
+	{
+		printf("[ERROR]: Could not open file.");
+	}
+	else
+	{
+		// Run Secure Hash Algorithim on the file.
+		printf("[FILE READ SUCCESS]: Now running sha256");
+		sha256(file);
+	}
 
 	return 0;
 }
+
+
 // ================================ SHA 256 Hash Computation ================================
 
 /**
@@ -226,7 +238,7 @@ void sha256(FILE *file)
 		printf("Is NOT Big Endian: ");
 		//	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
 		//  SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
-		printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", LitToBigEndian(H[0]), LitToBigEndian(H[1]), LitToBigEndian(H[2]),LitToBigEndian(H[3]), LitToBigEndian(H[4]), LitToBigEndian(H[5]), LitToBigEndian(H[6]), LitToBigEndian(H[7]));
+		printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", LitToBigEndian(H[0]), LitToBigEndian(H[1]), LitToBigEndian(H[2]), LitToBigEndian(H[3]), LitToBigEndian(H[4]), LitToBigEndian(H[5]), LitToBigEndian(H[6]), LitToBigEndian(H[7]));
 	}
 } // void sha256()
 
