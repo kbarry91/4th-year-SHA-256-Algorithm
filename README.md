@@ -1,8 +1,8 @@
 # 4th-year-SHA-256-Algorithm
 ## References
 - [ch maj](https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm/5360)
-- [endian checks](//http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/)
-  
+- [endian conversion](//http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/)
+- [endian check](https://www.reddit.com/r/C_Programming/comments/2wji9z/endianness_bugs/)
 ## Preprocessing
 - padding the meesage
 - parsing msg into msg blocks
@@ -39,8 +39,9 @@ printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4
 **Test Result** - FAIL
 
 ### Test 2
+printing as : 
 ```
-printing as printf("%x %x %x %x %x %x %x %x\n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
+printf("%x %x %x %x %x %x %x %x\n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
 		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
 ```
 
@@ -51,6 +52,7 @@ printing as printf("%x %x %x %x %x %x %x %x\n", SWAP_UINT32(H[0]), SWAP_UINT32(H
 **Test Result** - FAIL
 
 ### Test 3
+printing as : 
 ```
 printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
 		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
@@ -61,3 +63,20 @@ printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UIN
 **Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
 
 **Test Result** - FAIL (No difference to test 2) 
+
+### Test 4
+Changed algoritihm to 
+
+```
+unsigned int LitToBigEndian(unsigned int x)
+{
+	return (((x>>24) & 0x000000ff) | ((x>>8) & 0x0000ff00) | ((x<<8) & 0x00ff0000) | ((x<<24) & 0xff000000));
+}
+
+```
+
+**Expected result** - 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f
+
+**Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
+
+**Test Result** - FAIL (No difference to test 2 or 3) 

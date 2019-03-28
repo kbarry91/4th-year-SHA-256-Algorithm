@@ -54,6 +54,15 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 
 // Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
 #define SWAP_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
+#define littleToBigEndian(x) (((x >> 24) & 0x000000ff) | ((x >> 8) & 0x0000ff00) | ((x << 8) & 0x00ff0000) | ((x << 24) & 0xff000000));
+
+//https://www.reddit.com/r/C_Programming/comments/2wji9z/endianness_bugs/
+#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
+unsigned int LitToBigEndian(unsigned int x);
+unsigned int LitToBigEndian(unsigned int x)
+{
+	return (((x>>24) & 0x000000ff) | ((x>>8) & 0x0000ff00) | ((x<<8) & 0x00ff0000) | ((x<<24) & 0xff000000));
+}
 // Calculate the SHA256 hash of a file
 void sha256(FILE *file);
 
@@ -192,14 +201,33 @@ void sha256(FILE *file)
 
 	} // End of while loop.
 
+	// ================================ DEBUG AND TESTING ================================
+
 	// Testing pprinting has value
+
 	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-	// printing hash as big indian 
+
+	// printing hash as big indian
 	printf("%x %x %x %x %x %x %x %x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
 		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
-		   // printing hash as big indian 
+
+	// printing hash as big indian
 	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
 		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
+
+	// Must check if machine is big endian or little endian
+	if (IS_BIG_ENDIAN)
+	{
+		printf("Is Big Endian: ");
+		printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+	}
+	else
+	{
+		printf("Is NOT Big Endian: ");
+		//	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
+		//  SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
+		printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", LitToBigEndian(H[0]), LitToBigEndian(H[1]), LitToBigEndian(H[2]),LitToBigEndian(H[3]), LitToBigEndian(H[4]), LitToBigEndian(H[5]), LitToBigEndian(H[6]), LitToBigEndian(H[7]));
+	}
 } // void sha256()
 
 // ================================ Bit operations ================================
