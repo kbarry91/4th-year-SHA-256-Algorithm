@@ -49,3 +49,15 @@ printing as printf("%x %x %x %x %x %x %x %x\n", SWAP_UINT32(H[0]), SWAP_UINT32(H
 **Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
 
 **Test Result** - FAIL
+
+### Test 3
+```
+printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
+		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
+```
+
+**Expected result** - 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f
+
+**Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
+
+**Test Result** - FAIL (No difference to test 2) 
