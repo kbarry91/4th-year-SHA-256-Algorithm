@@ -55,11 +55,10 @@ printing as :
 ```
 printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 ```
-**Expected result** - 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f
 
-**Actual result** - 38eca61c 78c8f046 899dd682 e2a0733f dfdb82c5 1de696cc 8d08eb5c 4ce1912f
-
-**Test Result** - FAIL
+| Expected Result    | Actual Result    | PASS/FAIL |
+| --------|---------|-------|
+| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f  |  38eca61c 78c8f046 899dd682 e2a0733f dfdb82c5 1de696cc 8d08eb5c 4ce1912f   | **FAIL**  |
 
 ### Test 2
 printing as : 
@@ -68,11 +67,9 @@ printf("%x %x %x %x %x %x %x %x\n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_U
 		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
 ```
 
-**Expected result** - 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f
-
-**Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
-
-**Test Result** - FAIL
+| Expected Result    | Actual Result    | PASS/FAIL |
+| --------|---------|-------|
+| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f  | 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c   | **FAIL**   |
 
 ### Test 3
 printing as : 
@@ -81,11 +78,10 @@ printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UIN
 		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
 ```
 
-**Expected result** - 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f
 
-**Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
-
-**Test Result** - FAIL (No difference to test 2) 
+| Expected Result    | Actual Result    | PASS/FAIL |
+| --------|---------|-------|
+| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f  | 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c   | **FAIL** _(No difference to test 2 )_  |
 
 ### Test 4
 Changed algoritihm to 
@@ -98,12 +94,8 @@ unsigned int LitToBigEndian(unsigned int x)
 
 ```
 
-**Expected result** - 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f
 
-**Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
-
-**Test Result** - FAIL (No difference to test 2 or 3) 
 
 | Expected Result    | Actual Result    | PASS/FAIL |
 | --------|---------|-------|
-| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f  | 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c   | FAIL   |
+| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f  | 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c   | **FAIL** _(No difference to test 2 or 3) _ |
