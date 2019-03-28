@@ -103,3 +103,7 @@ unsigned int LitToBigEndian(unsigned int x)
 **Actual result** - 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c
 
 **Test Result** - FAIL (No difference to test 2 or 3) 
+
+| Expected Result    | Actual Result    | PASS/FAIL |
+| --------|---------|-------|
+| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f  | 1ca6ec38 46f0c878 82d69d89 3f73a0e2 c582dbdf cc96e61d 5ceb088d 2f91e14c   | FAIL   |
