@@ -24,6 +24,26 @@
    -   then 0s 
    -   then last 64 are num bits in origonal file
 
+## File Checking
+A file must be succesfully opened in order to run the program. This is simply achieved by using ``fopen()`` and a check for ``NULL``.
+```
+	FILE *file;
+
+	// Open the file from first cmdline argument.
+	file = fopen(argv[1], "r");
+
+	// Confirm check on file
+	if (file == NULL)
+	{
+		printf("[ERROR]: Could not open file.");
+	}
+	else
+	{
+		// Run Secure Hash Algorithim on the file.
+		printf("[FILE READ SUCCESS]: Now running sha256");
+		sha256(file);
+	}
+```
 ## Testing
 Tested sha256 using a copy of README called TESTFILE.md.
 In other to verify the resulys each checksum was compared with the results got from 2 resources

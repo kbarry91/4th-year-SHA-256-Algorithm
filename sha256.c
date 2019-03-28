@@ -73,7 +73,7 @@ void sha256(FILE *file);
 */
 int main(int argc, char *argv[])
 {
-	// File pointer
+	// File pointer.
 	FILE *file;
 
 	// Open the file from first cmdline argument.
