@@ -51,7 +51,7 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 // pointer to status
 // number of bits
 int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits);
-
+int writeToFile(char fileName[], uint32_t hash[]);
 // Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
 #define CONVERT_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 #define CONVERT_UINT64(x)                                                      \
@@ -216,6 +216,7 @@ void sha256(FILE *file)
 
 	// Print the hash value.
 	printf("Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+	writeToFile("somename",H);
 } // void sha256()
 
 // ================================ NEXT MESSAGE BLOCK ================================
@@ -425,4 +426,40 @@ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z)
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z)
 {
 	return ((x & y) ^ (x & z) ^ (y & z));
+}
+
+int writeToFile(char fileName[], uint32_t hash[])
+{
+	/* File pointer to hold reference to our file */
+	FILE *fileToCreate;
+
+	/* 
+     * Open file in w (write) mode. 
+     * "data/file1.txt" is complete path to create file
+     */
+	fileToCreate = fopen("data/file1.txt", "w");
+
+	/* fopen() return NULL if last operation was unsuccessful */
+	if (fileToCreate == NULL)
+	{
+		/* File not created hence exit */
+		printf("Unable to create file.\n");
+		
+		return 0;
+	}
+
+	/* Input contents from user to store in file */
+	printf("Enter contents to store in file : \n");
+	//fgets(data, DATA_SIZE, stdin);
+
+	/* Write data to file */
+	//fputs(hash, fileToCreate);
+	fprintf(fileToCreate,"Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7]);
+
+	/* Close file to save file data */
+	fclose(fileToCreate);
+
+	/* Success message */
+	printf("File created and saved successfully. 🙂 \n");
+	return 1;
 }
