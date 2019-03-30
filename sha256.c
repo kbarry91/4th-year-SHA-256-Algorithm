@@ -74,22 +74,34 @@ int main(int argc, char *argv[])
 {
 	// File pointer.
 	FILE *file;
-
+	char fileName[100];
+	int c = 0;
 	// Open the file from first cmdline argument.
 	//.================ TODO ERROR CHECK
-	file = fopen(argv[1], "r");
 
 	printf("========= Secure Hash Algorithim ========= \n");
 
-	// Confirm check on file
+	// Check if file was entered as cmd arguement.
+	if (argv[1] == NULL)
+	{
+		printf("No file specified as arguement.\nPlease enter a file name:\n");
+		scanf("%s", fileName);
+		printf("Searching for %s\n",fileName);
+		
+		file = fopen(fileName, "r");
+	}else{
+		file = fopen(argv[1], "r");
+	}
+
+	// Check if file opend succesfully.
 	if (file == NULL)
 	{
-		printf("[ERROR]: Could not open file.");
+		printf("[ERROR]: Could not open file.\n");
 	}
 	else
 	{
 		// Run Secure Hash Algorithim on the file.
-		printf("[FILE READ SUCCESS]: Now running sha256");
+		printf("[FILE READ SUCCESS]: Now running sha256\n");
 		sha256(file);
 	}
 
@@ -216,7 +228,7 @@ void sha256(FILE *file)
 
 	// Print the hash value.
 	printf("Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-	writeToFile("somename",H);
+	writeToFile("somename", H);
 } // void sha256()
 
 // ================================ NEXT MESSAGE BLOCK ================================
@@ -444,7 +456,7 @@ int writeToFile(char fileName[], uint32_t hash[])
 	{
 		/* File not created hence exit */
 		printf("Unable to create file.\n");
-		
+
 		return 0;
 	}
 
@@ -454,7 +466,7 @@ int writeToFile(char fileName[], uint32_t hash[])
 
 	/* Write data to file */
 	//fputs(hash, fileToCreate);
-	fprintf(fileToCreate,"Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7]);
+	fprintf(fileToCreate, "Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7]);
 
 	/* Close file to save file data */
 	fclose(fileToCreate);
