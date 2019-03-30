@@ -55,11 +55,17 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 // Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
 #define SWAP_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 #define littleToBigEndian(x) (((x >> 24) & 0x000000ff) | ((x >> 8) & 0x0000ff00) | ((x << 8) & 0x00ff0000) | ((x << 24) & 0xff000000));
+#define CONVERT_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
+#define CONVERT_UINT64(x)                                                      \
+	((((x) >> 56) & 0x00000000000000FF) | (((x) >> 40) & 0x000000000000FF00) | \
+	 (((x) >> 24) & 0x0000000000FF0000) | (((x) >> 8) & 0x00000000FF000000) |  \
+	 (((x) << 8) & 0x000000FF00000000) | (((x) << 24) & 0x0000FF0000000000) |  \
+	 (((x) << 40) & 0x00FF000000000000) | (((x) << 56) & 0xFF00000000000000))
 
 //https://www.reddit.com/r/C_Programming/comments/2wji9z/endianness_bugs/
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
-unsigned int LitToBigEndian(unsigned int x);
-unsigned int LitToBigEndian(unsigned int x)
+//unsigned int LitToBigEndian(uint32_t x);
+unsigned int LitToBigEndian(uint32_t x)
 {
 	return (((x >> 24) & 0x000000ff) | ((x >> 8) & 0x0000ff00) | ((x << 8) & 0x00ff0000) | ((x << 24) & 0xff000000));
 }
@@ -97,7 +103,6 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-
 // ================================ SHA 256 Hash Computation ================================
 
 /**
@@ -122,7 +127,7 @@ void sha256(FILE *file)
  * parts of the cube roots of the first sixty-four prime numbers.
  */
 	const uint32_t K[] = {
-		0x248a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+		0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 		0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
 		0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
 		0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
@@ -166,8 +171,29 @@ void sha256(FILE *file)
 		// Page 22, W[t]= M[t] for 0 <= t <= 15.
 		// W is word in message.
 		for (t = 0; t < 16; t++)
-			W[t] = M.t[t]; // Copy M to W
+		{
 
+			//	printf("step 2: %x \n",M.t[t]);
+			//
+			// Set message to be hased with big endian conversion.
+			W[t] = CONVERT_UINT32(M.t[t]);
+			//	printf("step 2: %08x \n",W[t]);
+			//W[t] = M.t[t]; // Copy M to W
+			/*
+			if (IS_BIG_ENDIAN)
+			{
+				printf("Is Big Endian check: \n");
+
+				W[t] = M.t[t]; // Copy M to W
+			}
+			else
+			{
+				printf("Is notBig Endian check: \n");
+
+				W[t] = LitToBigEndian(M.t[t]); // Copy M to W
+			}
+			*/
+		}
 		// Page 22, W[t]= ...
 		for (t = 16; t < 64; t++)
 			W[t] = sig1(W[t - 2]) + W[t - 7] + sig0(W[t - 15]) + W[t - 16];
@@ -179,10 +205,10 @@ void sha256(FILE *file)
 		b = H[1];
 		c = H[2];
 		d = H[3];
-		d = H[4];
-		e = H[5];
-		f = H[6];
-		f = H[7];
+		e = H[4];
+		f = H[5];
+		g = H[6];
+		h = H[7];
 
 		// ================================ Step 3.
 		// create new values for working variables.
@@ -202,14 +228,15 @@ void sha256(FILE *file)
 
 		// ================================ Step 4.
 		// Compute the ith intermediate hash value H(i):
-		H[0] = a + H[0];
-		H[1] = b + H[1];
-		H[2] = c + H[2];
-		H[3] = d + H[3];
-		H[4] = e + H[4];
-		H[5] = f + H[5];
-		H[6] = g + H[6];
-		H[7] = h + H[7];
+
+		H[0] = (a + H[0]);
+		H[1] = (b + H[1]);
+		H[2] = (c + H[2]);
+		H[3] = (d + H[3]);
+		H[4] = (e + H[4]);
+		H[5] = (f + H[5]);
+		H[6] = (g + H[6]);
+		H[7] = (h + H[7]);
 
 	} // End of while loop.
 
@@ -217,29 +244,31 @@ void sha256(FILE *file)
 
 	// Testing pprinting has value
 
-	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-
-	// printing hash as big indian
-	printf("%x %x %x %x %x %x %x %x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
-		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
-
-	// printing hash as big indian
-	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
-		   SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
+	printf("Standard: %08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 
 	// Must check if machine is big endian or little endian
+
+	//	uint32_t testervar = 0x1A2B3C4D;
+	//	printf("Test: %x \n", testervar);
+	//	printf("Test: %08x \n", testervar);
+
+	//	printf("Test: %x \n", SWAP_UINT32(testervar));
+
 	if (IS_BIG_ENDIAN)
 	{
-		printf("Is Big Endian: ");
+		printf("Is Big Endian: \n");
 		printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 	}
 	else
 	{
-		printf("Is NOT Big Endian: ");
+		printf("NOTBig Endian: \n");
 		//	printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]),
 		//  SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
-		printf("%08x %08x %08x %08x %08x %08x %08x %08x \n", LitToBigEndian(H[0]), LitToBigEndian(H[1]), LitToBigEndian(H[2]), LitToBigEndian(H[3]), LitToBigEndian(H[4]), LitToBigEndian(H[5]), LitToBigEndian(H[6]), LitToBigEndian(H[7]));
+		printf("Standard: %08x %08x %08x %08x %08x %08x %08x %08x \n", SWAP_UINT32(H[0]), SWAP_UINT32(H[1]), SWAP_UINT32(H[2]), SWAP_UINT32(H[3]), SWAP_UINT32(H[4]), SWAP_UINT32(H[5]), SWAP_UINT32(H[6]), SWAP_UINT32(H[7]));
+		printf("NonChang: %08x %08x %08x %08x %08x %08x %08x %08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+		printf("NonChang: %x %x %x %x %0x %x %x %x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 	}
+
 } // void sha256()
 
 // ================================ Bit operations ================================
@@ -355,10 +384,14 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 		for (i = 0; i < 56; i++)
 		{
 			M->e[i] = 0x00;
-			printf("[DEBUG set bytes to 0  \n");
+			//printf("[DEBUG set bytes to 0  \n");
 		}
 		// Set the last 64 bits to th number of bits in the file( should be big-endian)
-		M->s[7] = *nobits;
+
+		///M->s[7] =  littleToBigEndian((*nobits));
+		M->s[7] = CONVERT_UINT64(*nobits);
+		//	M->s[7] =  LitToBigEndian((uint8_t)(*nobits));
+		//	printf("Aftere conv  %x \n", M->s[7]);
 		// set state to finish
 		*S = FINISH;
 
@@ -377,12 +410,11 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 
 	// IF we enter here,we havnt finsihed reading the file (S == READ)
 	nobytes = fread(M->e, 1, 64, file); // read 64 bytes at a time from file into M->e.
-	//printf("Read %2llu bytes\n", nobytes);
+	printf("Read %2llu bytes\n", nobytes);
 
 	// Add 8 bits for each byte;
 	// Keep track of number of bytes read.
-	*nobits += (nobytes * 8);
-
+	*nobits = *nobits + (nobytes * 8);
 	// Check if less than 56 bytes have been read.
 	// If so put all padding in this message block.
 	if (nobytes < 56)
@@ -398,13 +430,19 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 		{
 			nobytes = nobytes + 1; // Add one as index into block.((actually loop var))
 			M->e[nobytes] = 0x00;  // Set all bytes to 0.
-			printf("[DEBUG set bytes to 0  \n");
+								   //printf("[DEBUG set bytes to 0  \n");
 		}
 		// Set last 4 bytes as 64 biit integer as number of bits read from file.
 
 		// Set last element to nobits(number of bits in origonal msg).
 		// Append the file size in bits as a (should be big-endian) unsigned 64bit int.
-		M->s[7] = *nobits; // TODO  make sure its big indian integer
+		//M->s[7] = SWAP_UINT32((uint8_t)(*nobits)); // TODO  make sure its big indian integer
+		M->s[7] = CONVERT_UINT64(*nobits);
+		//	printf("Aftere conv  %x \n", M->s[7]);
+		//	printf("M->s[7] = *nobits: %08x \n", M->s[7]);
+		//printf("M->s[7] = *nobits: %08x \n", *nobits);
+		//	printf("M->s[7] = *nobits: %x \n", LitToBigEndian(((uint8_t)(*nobits))));
+		//	printf("M->s[7] = *nobits: %08x \n", SWAP_UINT32(*nobits));
 
 		/*
             printf("[DEBUG todollu]nobits %2llu \n",nobits);
@@ -446,13 +484,19 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 	}
 
 	// DEBUG
-	for (int i = 0; i < 64; i++)
+	int counter;
+	for (counter = 0; counter < 64; counter++)
 	{
 		// Print elements of M as 64 individual bytes.
-		printf("%x ", M->e[i]);
+		printf("%x  ", M->e[counter]);
+	}
+	printf("\n %d\n", counter);
+	for (int i = 0; i < 8; i++)
+	{
+		// Print elements of M as 64 individual bytes.
+		printf("%08x ", M->s[i]);
 	}
 	printf("\n");
-
 	// If we get this far , then return 1 to call this function again.
 	return 1;
 }
