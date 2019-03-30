@@ -278,18 +278,18 @@ void sha256(FILE *file)
  * Rotate x rigth by n places. Place overhanging bits back to begining.
  * See section 3.2
  */
-uint32_t rotr(uint32_t n, uint32_t x)
+uint32_t rotr(uint32_t x, uint32_t a)
 {
-	return (x >> n) | (x << (32 - n));
+	return (x >> a) | (x << (32 - a));
 }
 
 /**
  * Shift right
  * Shift x n positions.
  */
-uint32_t shr(uint32_t n, uint32_t x)
+uint32_t shr(uint32_t x, uint32_t b)
 {
-	return (x >> n);
+	return (x >> b);
 }
 
 /**
@@ -299,7 +299,7 @@ uint32_t shr(uint32_t n, uint32_t x)
 uint32_t sig0(uint32_t x)
 {
 	// See section 3.2 and 4.1.2 for definitions
-	return (rotr(7, x) ^ rotr(18, x) ^ shr(3, x));
+	return (rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3));
 }
 
 /**
@@ -309,7 +309,7 @@ uint32_t sig0(uint32_t x)
 uint32_t sig1(uint32_t x)
 {
 	// See section 3.2 and 4.1.2 for definitions
-	return (rotr(17, x) ^ rotr(19, x) ^ shr(10, x));
+	return (rotr(x, 17) ^ rotr(x,19) ^ shr(x, 10));
 }
 
 /**
@@ -318,7 +318,7 @@ uint32_t sig1(uint32_t x)
  */
 uint32_t SIG0(uint32_t x)
 {
-	return (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
+	return (rotr(x, 2) ^ rotr(x,13) ^ rotr(x,22));
 }
 
 /**
@@ -327,7 +327,7 @@ uint32_t SIG0(uint32_t x)
  */
 uint32_t SIG1(uint32_t x)
 {
-	return (rotr(6, x) ^ rotr(11, x) ^ (25, x));
+	return (rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25));
 }
 
 /**
@@ -338,7 +338,7 @@ uint32_t SIG1(uint32_t x)
  */
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z)
 {
-	return ((x & y) ^ ((!x) & z));
+	return ((x & y) ^ (~(x) & z));
 }
 
 /**
