@@ -182,7 +182,7 @@ The above code illustrates the comparison between an integer being compared agai
 ```
 
 ## References
-In order to complete this project alot of research went into both the **SHA-256** algorithm aswell as the **C** programming language. Any code adapted from outside sources is refernced in the [sha256.c](https://github.com/kbarry91/4th-year-SHA-256-Algorithm/blob/master/sha256.c) file and complies with all licenses.
+In order to complete this project alot of research went into both the **SHA-256** algorithm aswell as the **C** programming language. Any code adapted from outside sources is refernced in the [sha256.c](https://github.com/kbarry91/4th-year-SHA-256-Algorithm/blob/master/sha256.c) file and complies with all licenses and [^policies] .
 
 Below is as list of some other resources used to conduct research:
 - [ch maj](https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm/5360)
@@ -193,3 +193,6 @@ Below is as list of some other resources used to conduct research:
 - [Binary representations](https://www.geeksforgeeks.org/little-and-big-endian-mystery/)
 - [SHA Standard](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
   
+
+
+[^policies] : This project complies with the Quality Assurance Framework at GMIT which includes the Code of Student Conduct and the Policy on Plagiarism.

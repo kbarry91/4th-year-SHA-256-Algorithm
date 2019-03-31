@@ -1,9 +1,12 @@
 // Author: 		Kevin Barry
 // Module: 		Theory Of Algorithms
 // Description:	SHA-256 as defined at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
-// Tested using : https://emn178.github.io/online-tools/sha256_checksum.html
+// Tests: https://emn178.github.io/online-tools/sha256_checksum.html
+
 #include <stdio.h>  // IO header file.
 #include <stdint.h> // For fixed bit length integers.
+#include <string.h>
+#include <libgen.h> // for more advanced string manipulation.
 
 /**
  * e to access as 8 bit integers.
@@ -12,7 +15,6 @@
  * 
  * This union represnts message block and  allows every element to be saved in same memory location.
  * Values are the same but being read differently.
- * 
  */
 union msgblock {
 	uint8_t e[64];  // 8*64 = 512 bits
@@ -51,7 +53,9 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 // pointer to status
 // number of bits
 int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits);
-int writeToFile(char fileName[], uint32_t hash[]);
+int writeToFile(uint32_t hash[]);
+// Char pointer to hold file name
+char *basename(char *path);
 // Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
 #define CONVERT_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 #define CONVERT_UINT64(x)                                                      \
@@ -66,15 +70,16 @@ int writeToFile(char fileName[], uint32_t hash[]);
 // Calculate the SHA256 hash of a file
 void sha256(FILE *file);
 
-// ================================ Main Method ================================
+// Filename to save.
+char fileName[100];
+
 /*
-* The main method.
+* ================================ Main Method ================================
 */
 int main(int argc, char *argv[])
 {
 	// File pointer.
 	FILE *file;
-	char fileName[100];
 
 	printf("\n========= Secure Hash Algorithim ========= \n");
 
@@ -83,14 +88,17 @@ int main(int argc, char *argv[])
 	{
 		printf("No file specified as argument.\nPlease enter a file name: ");
 		scanf("%s", fileName);
-		printf("Searching for %s.....\n",fileName);
-		
+		printf("Searching for %s.....\n", fileName);
+
 		file = fopen(fileName, "r");
-	}else{
+	}
+	else
+	{
 		file = fopen(argv[1], "r");
+		strcpy(fileName, argv[1]);
 	}
 
-	// Check if file openedd succesfully.
+	// Check if file opened succesfully.
 	if (file == NULL)
 	{
 		printf("[ERROR]: Could not open file.\n");
@@ -99,6 +107,7 @@ int main(int argc, char *argv[])
 	{
 		// Run Secure Hash Algorithim on the file.
 		printf("[FILE READ SUCCESS]: Now running sha256 Hash Computation.....\n");
+		printf("test for %s.....\n", fileName);
 		sha256(file);
 	}
 
@@ -108,7 +117,7 @@ int main(int argc, char *argv[])
 // ================================ SHA 256 Hash Computation ================================
 
 /**
- * Sha256
+ * Sha256 
 */
 void sha256(FILE *file)
 {
@@ -122,11 +131,11 @@ void sha256(FILE *file)
 	enum status S = READ;
 
 	/*
- * The K constants.
- * SHA-256 use the same sequence of sixty-four constant 32-bit words, 
- * These words represent the first thirty-two bits of the fractional 
- * parts of the cube roots of the first sixty-four prime numbers.
- */
+ 	* The K constants.
+ 	* SHA-256 use the same sequence of sixty-four constant 32-bit words, 
+ 	* These words represent the first thirty-two bits of the fractional 
+ 	* parts of the cube roots of the first sixty-four prime numbers.
+	*/
 	const uint32_t K[] = {
 		0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 		0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -158,12 +167,11 @@ void sha256(FILE *file)
 		0x5be0cd19};
 
 	// ================================ Hash Computation ================================
-	// Each meessage block is processed in order.
 
 	// Loop variables.
 	int i, t;
 
-	// Iterate through message blocks as per page 22.
+	// Iterate through message blocks  and process in order as per page 22.
 	while (nextmsgblock(file, &M, &S, &nobits))
 	{
 
@@ -208,7 +216,6 @@ void sha256(FILE *file)
 
 		// ================================ Step 4.
 		// Compute the ith intermediate hash value H(i):
-
 		H[0] = (a + H[0]);
 		H[1] = (b + H[1]);
 		H[2] = (c + H[2]);
@@ -224,7 +231,9 @@ void sha256(FILE *file)
 
 	// Print the hash value.
 	printf("\nSHA-256 Checksum: %08x%08x%08x%08x%08x%08x%08x%08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-	//writeToFile("somename", H);
+
+	// Write the hash to file
+	writeToFile(H);
 } // void sha256()
 
 // ================================ NEXT MESSAGE BLOCK ================================
@@ -252,8 +261,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 	// If status is PAD0 or PAD1 add block padding where first 448 bits are 0's
 	// in the last block, put in the 64 bit big endian integer
 	// which represents the number of bits in the original message
-
-	// IANS COMMENT - otherwise,check if we another block of padding.
+	// otherwise, check if we another block of padding.
 	if (*S == PAD0 || *S == PAD1)
 	{
 		// Set first 56 bytes to all zero bits.
@@ -276,7 +284,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 		return 1;
 	}
 
-	// IF we enter here,we havnt finsihed reading the file (S == READ)
+	// If we enter here,we havnt finsihed reading the file (S == READ)
 	nobytes = fread(M->e, 1, 64, file); // read 64 bytes at a time from file into M->e.
 
 	// Keep track of total number of bits read,(number of bytes *8).
@@ -288,7 +296,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 	{
 
 		// Change to one byte.
-		// Add one bit as per the standard.
+		// Add 1 bit as per the standard.
 		M->e[nobytes] = 0x80; // 00000001
 
 		// Add 0 bits until last 64bits.
@@ -303,33 +311,31 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 		// Append the file size in bits as a (should be big-endian) unsigned 64bit int.
 		M->s[7] = CONVERT_UINT64(*nobits);
 
-		// Set6 S to FINISH state.
+		// Set S to FINISH state.
 		*S = FINISH;
 	}
 
-	// If 56 to 64 bytes read we have to have an extra message block full of padding
-	// cannot append "1" and add a 64 bit integer to the original message block
-	// IANS COMMENT- otherwise check if we can put some padding into this msgblock.
+	// If 56 to 64 bytes read we need to have an extra message block full of padding
+	// append "1" and add a 64 bit integer to the original message block
+	// otherwise check if we can put some padding into this msgblock.
 	else if (nobytes < 64)
 	{
-		// Tell S we need another messageblock with padding but no 1 bit
+		// Tell S we need another messageblock with padding but no 1 bit.
 		*S = PAD0; // need another message block
 		// Put the 1 bit into the current block.
 		M->e[nobytes] = 0x80; // append 1
 
-		// add some padding to the current message block
-		// IANS COMMENT - pad rest of block with 0 bits
+		// Pad the rest of current message block with 0 bits.
 		while (nobytes < 64)
 		{
 			nobytes = nobytes + 1;
-			M->e[nobytes] = 0x00; // fill block with "0"
-		}						  // end while
+			M->e[nobytes] = 0x00;
+		} // end while
 	}
 
 	// If I have finished reading everything from the file and it was exactly 512 bits in length
 	// i.e I kept reading 64 bytes from the file & the last time I read from the file
-	// I read 64 bytes and it brought me to the exact end of the file
-	// IANS COMMENT - otherwise check if we are the the end of file and if there is more to read.
+	// I read 64 bytes and it brought me to the exact end of the file.
 	else if (feof(file))
 	{
 		// Tell S that we need a message block with all the padding.
@@ -353,6 +359,59 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 	printf("\n");
 */
 	// If we get this far , then return 1 to call this function again.
+	return 1;
+}
+
+// ================================ Write to file ================================
+/**
+ * Save the hash checksum to a file.
+*/
+int writeToFile(uint32_t hash[])
+{
+	// File pointer to hold reference to our file.
+	FILE *fileToCreate;
+	char path[] = "saved-hashes/";
+	char *basec, *bname;
+	basec = strdup(fileName);
+	bname = basename(basec);
+
+	// Remove extension from string.
+	for (int i = 0; i < strlen(bname); i++)
+	{
+		if (bname[i] == '.')
+		{
+			bname[i] = '\0';
+			break;
+		}
+	}
+	// Append ext to name.
+	strcat(bname, ".txt");
+	// Append name to path.
+	strcat(path, bname);
+
+	/* 
+     * Open file in w (write) mode.
+     */
+	fileToCreate = fopen(path, "w");
+
+	// fopen() return NULL if last operation was unsuccessful.
+	if (fileToCreate == NULL)
+	{
+		// File not created hence exit.
+		printf("Unable to create file.\n");
+
+		return 0;
+	}
+
+	// Write data to file .
+	fprintf(fileToCreate, "Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7]);
+
+	// Close file to save file data.
+	fclose(fileToCreate);
+
+	// Success message. 
+	printf("File created and checksum saved.\n");
+
 	return 1;
 }
 
@@ -434,40 +493,4 @@ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z)
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z)
 {
 	return ((x & y) ^ (x & z) ^ (y & z));
-}
-
-int writeToFile(char fileName[], uint32_t hash[])
-{
-	/* File pointer to hold reference to our file */
-	FILE *fileToCreate;
-
-	/* 
-     * Open file in w (write) mode. 
-     * "data/file1.txt" is complete path to create file
-     */
-	fileToCreate = fopen("data/file1.txt", "w");
-
-	/* fopen() return NULL if last operation was unsuccessful */
-	if (fileToCreate == NULL)
-	{
-		/* File not created hence exit */
-		printf("Unable to create file.\n");
-
-		return 0;
-	}
-
-	/* Input contents from user to store in file */
-	printf("Enter contents to store in file : \n");
-	//fgets(data, DATA_SIZE, stdin);
-
-	/* Write data to file */
-	//fputs(hash, fileToCreate);
-	fprintf(fileToCreate, "Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7]);
-
-	/* Close file to save file data */
-	fclose(fileToCreate);
-
-	/* Success message */
-	printf("File created and saved successfully. 🙂 \n");
-	return 1;
 }
