@@ -10,7 +10,40 @@ _This standard specifies hash algorithms that can be used to generate digests of
 | --------- | ------------------- | ----------------- | ---------------- | -------------------------- |
 | SHA-256   | <2<sup>64</sup>     | 512               | 42               | 256                        |
 
------
+
+### Preprocessing
+Before SHA-256 can be performed on an input some preproccesing is required. The steps are outlined in _Section 5_ of the [Processing Standards Publication 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf).
+1. Padding the message (_Section 5.1_).
+2. Parse message into message blocks (_Section 5.2_).
+3. Set initial hash value (_Section 5.3_).
+
+### Padding the message (To become a 512 bit padded message block)
+- Append "1" bit to  the end.
+- Add enough "0" bits so left with 64 bits at the end.
+- In remaining 64 encode length(nobits) of message in binary big-endian.
+
+### Steps
+- Read 64bytes at a time from file to our message block.
+- If last fread < 56 bytes put all padding into last message block( add a "1" bit and 7 "0" bits).
+- If we dont have 9bytes left at the end of the block:
+  - Create new message block.
+  - Only contains padding.
+- If file was exactly 512 bits:
+  - Create another message block first bit is "1"
+  - Then "0" bits 
+  - Then last 64 bits are the number of bits in original file.
+----
+
+### SHA-256 Hash Computation 
+Each Message block _M<sub>(1)</sub>, M<sub>(2)</sub>,.... M<sub>(N)</sub>_ is processed in order using the steps defined below:
+1. Prepare message schedule _W<sup>(t)</sup>_ 
+2. Iniitialze the eight working variables _a, b, c, d, e, f, g, h_ with their specified hash value
+3. For t=0 to 63  create new values for working variables.
+4. Compute the _i<sup>th</sup>_ intermediate hash value _H<sup>(i)</sup>_:
+
+After repesting steps one to four _N_ times the resulting 256-bit message digest of _M_ is _H<sub>(0)</sub><sup>(N)</sup>_, _H<sub>(1)</sub><sup>(N)</sub>_,......_H<sub>(7)</sub><sup>(N)</sup>_.
+
+
 
 ## Prerequisites
 The only requirement for this program is a C compiler. There is 2 ways to do so
@@ -23,16 +56,16 @@ The only requirement for this program is a C compiler. There is 2 ways to do so
 ### Download
 Clone this reposiory to your machine.
 - Navigate to directory
-- in command prompt 
+- In command prompt 
   ```  
-	https://github.com/kbarry91/4th-year-SHA-256-Algorithm.git
+	> git clone https://github.com/kbarry91/4th-year-SHA-256-Algorithm.git
 	```
 ### Compile the program
-Navigate to the downloaded repository and enter	
+Navigate to the downloaded repository and enter	:
 ```
-gcc -o SHA-256 SHA-256.c
+> gcc -o sha-256 sha-256.c
 ```	
-This will compile the program and add a ``SHA-256`` executable to the directory.
+This will compile the program and add a ``sha-256`` executable to the directory.
 
 ### Execute the program
 The program has been designed to work in 2 different ways:
@@ -40,9 +73,9 @@ The program has been designed to work in 2 different ways:
 2. Enter the filename as a string at runtime.
 
 #### Command line arguemnt
-To hash a file from command line run enter the exectuable and the file to be hashed.
+To hash a file from command line run enter the executable and the file to be hashed.
 ```
-./sha256 text1.txt
+> ./sha256 text1.txt
 ```
 
 <p align="center">
@@ -52,33 +85,12 @@ To hash a file from command line run enter the exectuable and the file to be has
 #### Runtime
 The algorithm has be designed to check if a file was entered as an arguement. If not you will be given the option to enter the file when the program starts. Simply enter the path and filename. To run the program:
 ```
-./sha256 
+> ./sha256 
 ```
 <p align="center">
   <img src = "https://i.imgur.com/lqAhnvm.png/">
 </p>
 
-
-## Preprocessing
-- padding the meesage
-- parsing msg into msg blocks
-- setting initial hash value
-
-### Padding the message(To become a 51 bit padded message)
-- apepend "1" bit to end
-- add enough "0"s so left with 64 bits at the end
-- In remaining 64 encode length of msg in binary big indian
-
-## Steps
-- Read 64bytes at a time from file to our message block
-- if last fread <56 bytes put atll padding into last message block(add a 1bit and 7 0 bits)
-- if we dont have 9bytes left at end of file
-  - new essage block
-  - only contains padding
--  if file was exactly 512 bits
-   -  anothe message block first bit is 1,
-   -   then 0s 
-   -   then last 64 are num bits in origonal file
 
 
 -----
@@ -166,10 +178,14 @@ The above code illustrates the comparison between an integer being compared agai
 ```
 
 ## References
+In order to complete this project alot of research went into both the **SHA-256** algorithm aswell as the **C** programming language. Any code adapted from outside sources is refernced in the [sha256.c](https://github.com/kbarry91/4th-year-SHA-256-Algorithm/blob/master/sha256.c) file and complies with all licenses.
+
+Below is as list of some other resources used to conduct research:
 - [ch maj](https://crypto.stackexchange.com/questions/5358/what-does-maj-and-ch-mean-in-sha-256-algorithm/5360)
 - [endian conversion](//http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/)
 - [endian check](https://www.reddit.com/r/C_Programming/comments/2wji9z/endianness_bugs/)
 - [National Institute of Standard and Technology](https://www.nist.gov/publications/secure-hash-standard)
 - [DI Management](https://www.di-mgt.com.au/sha_testvectors.html)
 - [Binary representations](https://www.geeksforgeeks.org/little-and-big-endian-mystery/)
-- 
+- [SHA Standard](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
+  
