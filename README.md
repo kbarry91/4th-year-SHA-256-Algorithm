@@ -1,5 +1,5 @@
 # 4th-year-SHA-256-Algorithm
-This repository contains a project completed for GMIT's Theory of Algorithms module. It involves writing a program in the C programming language to perform the Secure Hash Algorithm (SHA) algorithm , speciﬁcally the 256-bit version known as SHA-256. The implementation is a single C file thats calculates the **SHA-256** checksum of an input. The algorithm is based on the Secure Hash Standard document supplied by the  [National Institute of Standard and Technology](https://www.nist.gov/publications/secure-hash-standard).
+This repository contains a project completed for GMIT's Theory of Algorithms module. It involves writing a program in the C programming language to perform the Secure Hash Algorithm (SHA) algorithm, speciﬁcally the 256-bit version known as SHA-256. The implementation is a single C file thats calculates the **SHA-256** checksum of an input. The algorithm is based on the Secure Hash Standard document supplied by the  [National Institute of Standard and Technology](https://www.nist.gov/publications/secure-hash-standard).
 
 -----
 
@@ -108,7 +108,7 @@ The program allows for a user to enter a string to compute the checksum. Simply 
 -----
 
 ## Testing
-The algorithm was tested using the test vectors approved by the [National Institute Of Standards](https://www.nist.gov/publications/secure-hash-standard) available at [DI Management](https://www.di-mgt.com.au/sha_testvectors.html). In other to verify the results each checksum was compared with the results got from 2 other resources.
+The algorithm was tested using the test vectors approved by the [National Institute Of Standards](https://www.nist.gov/publications/secure-hash-standard) available at [DI Management](https://www.di-mgt.com.au/sha_testvectors.html).Testing was verified on both Linux and Windows machines and returned the same results. In order to verify the results each checksum was compared with the results got from 2 other resources.
 1. [sha256_checksum](https://emn178.github.io/online-tools/sha256_checksum.html).
 2. [onlinemd5](http://onlinemd5.com/).
 
@@ -131,7 +131,7 @@ To run the following tests the corresponding test files have been added to the [
 ### Test 4
 | Input                        | Expected Result                                                  | Actual Result                                                           | PASS/FAIL |
 | ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
-| testing on file **sha256.c** | 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f | 38eca61c 78c8f046 899dd682 e2a0733f dfdb82c5 1de696cc 8d08eb5c 4ce1912f | **PASS**  |
+| testing on file **sha256.c** | d10c44abceaca287a2fae35c70436b4ba30286baaac0ad044e3fcf9612799fe8 | f8b8ff1646d46d6cebf61110ccde701b0f076904d2dcf3a1177cd6c6d86f561c | **FAIL** _see known bugs section_  |
 
 -----
 
@@ -197,6 +197,44 @@ The above code illustrates the comparison between an integer being compared agai
 	 (((x) << 8 ) & 0x000000FF00000000) | (((x) << 24) & 0x0000FF0000000000) |  
 	 (((x) << 40) & 0x00FF000000000000) | (((x) << 56) & 0xFF00000000000000))
 ```
+---
+## Limitations , known Bugs and Improvements
+
+### Limitations
+The program appears to be invalid when tested on large files. After extensive research, I have narrowed the fault down to an issue with how line breaks are used to terminate lines in different operating systems such as a PC running Windows and a web server running Linux.
+
+- **Windows**	- Uses CR and LF characters to terminate lines.
+- **UNIX**		- Uses only a single LF character.
+-  **MAC**		- Uses a single CR character. 
+ 
+
+This can also be caused by the text editor used to create the file, with some editors like [Notepad++](https://notepad-plus-plus.org/download/v7.6.4.html)  the file is adjusted to suit the current operating system. The solution below suggested by [hanselman](https://www.hanselman.com/blog/CarriageReturnsAndLineFeedsWillUltimatelyBiteYouSomeGitTips.aspx) has been implemented in .NET to deal with the issue when writing a file.
+
+```java
+  public static String NewLine {
+    get {
+        Contract.Ensures(Contract.Result() != null);
+  	#if !PLATFORM_UNIX
+          return "\r\n";
+        #else
+          return "\n";
+        #endif // !PLATFORM_UNIX
+    }
+  }
+```
+
+To solve to this issue when reading from a file byte by byte I would check for a line ending and remove it, for example on Windows remove the 0D byte so the newline is only \n. Due to lack of time to extensively test the solution I did not get to implement the change, but the research involved to solve the issue will benefit to help me deal with this problem before it arises in future projects.
+
+### Improvements
+I feel that the code design could be improved to produce a much cleaner file. The main reason for this is extra features that I decided to implement at last minute. I have started practicing developing with an agile approach to get the products business requirements delivered at a faster pace and if more time was available I would conduct this code clean up on my next sprint.  
+
+To outline an example the code uses 2 methods for file reading. These methods could be redesigned to abstract what differs to allow one method to be used for both types of input and output.
+```c
+	int writeToFile(uint32_t hash[])
+	int writeToFileInput(char inputString[])
+```
+
+----
 
 ## References
 In order to complete this project alot of research went into both the **SHA-256** algorithm aswell as the **C** programming language. Any code adapted from outside sources is refernced in the [sha256.c](https://github.com/kbarry91/4th-year-SHA-256-Algorithm/blob/master/sha256.c) file and complies with all licenses and [^policies] .
@@ -210,6 +248,6 @@ Below is as list of some other resources used to conduct research:
 - [Binary representations](https://www.geeksforgeeks.org/little-and-big-endian-mystery/)
 - [SHA Standard](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
 - [String Manipulation](https://linux.die.net/man/3/basename)
-
+- [OS line ending](https://www.editpadpro.com/tricklinebreak.html)
 
 [^policies] : This project complies with the Quality Assurance Framework at GMIT which includes the Code of Student Conduct and the Policy on Plagiarism.
