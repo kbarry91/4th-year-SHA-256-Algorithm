@@ -75,7 +75,7 @@ The program has been designed to work in 2 different ways:
 #### Command line arguemnt
 To hash a file from command line run enter the executable and the file to be hashed.
 ```
-> ./sha256 text1.txt
+> ./sha256 filename.txt_
 ```
 
 <p align="center">
@@ -100,32 +100,33 @@ The algorithm was tested using the test vectors approved by the [National Instit
 1. [sha256_checksum](https://emn178.github.io/online-tools/sha256_checksum.html).
 2. [onlinemd5](http://onlinemd5.com/).
 
+To run the following tests the corresponding test files have been added to the [test-files](https://github.com/kbarry91/4th-year-SHA-256-Algorithm/blob/master/test-files) folder. When testing via command line arguement or at runtime the files can be referenced by `test-files/test1.txt`
 ### Test 1
-| Input | Expected Result                                                  | Actual Result                                                           | PASS/FAIL |
-| -|---------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
-|abc| ba7816bf 8f01cfea 414140de 5dae2223 b00361a3 96177a9c b410ff61 f20015ad | ba7816bf 8f01cfea 414140de 5dae2223 b00361a3 96177a9c b410ff61 f20015ad | **PASS**  |
+| Input | Expected Result                                                         | Actual Result                                                           | PASS/FAIL |
+| ----- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
+| abc   | ba7816bf 8f01cfea 414140de 5dae2223 b00361a3 96177a9c b410ff61 f20015ad | ba7816bf 8f01cfea 414140de 5dae2223 b00361a3 96177a9c b410ff61 f20015ad | **PASS**  |
 
 ### Test 2
-| Input | Expected Result                                                  | Actual Result                                                           | PASS/FAIL |
-| -|---------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
-|empty string ""| e3b0c442 98fc1c14 9afbf4c8 996fb924 27ae41e4 649b934c a495991b 7852b855 | e3b0c442 98fc1c14 9afbf4c8 996fb924 27ae41e4 649b934c a495991b 7852b855| **PASS**  |
+| Input           | Expected Result                                                         | Actual Result                                                           | PASS/FAIL |
+| --------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
+| empty string "" | e3b0c442 98fc1c14 9afbf4c8 996fb924 27ae41e4 649b934c a495991b 7852b855 | e3b0c442 98fc1c14 9afbf4c8 996fb924 27ae41e4 649b934c a495991b 7852b855 | **PASS**  |
 
 ### Test 3
-| Input | Expected Result                                                  | Actual Result                                                           | PASS/FAIL |
-| -|---------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
-|abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq| 	248d6a61 d20638b8 e5c02693 0c3e6039 a33ce459 64ff2167 f6ecedd4 19db06c1 | 	248d6a61 d20638b8 e5c02693 0c3e6039 a33ce459 64ff2167 f6ecedd4 19db06c1 | **PASS**  |
+| Input                                                    | Expected Result                                                         | Actual Result                                                           | PASS/FAIL |
+| -------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
+| abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq | 248d6a61 d20638b8 e5c02693 0c3e6039 a33ce459 64ff2167 f6ecedd4 19db06c1 | 248d6a61 d20638b8 e5c02693 0c3e6039 a33ce459 64ff2167 f6ecedd4 19db06c1 | **PASS**  |
 
 ### Test 4
-| Input | Expected Result                                                  | Actual Result                                                           | PASS/FAIL |
-| -|---------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
-|testing on file **sha256.c**| 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f | 38eca61c 78c8f046 899dd682 e2a0733f dfdb82c5 1de696cc 8d08eb5c 4ce1912f | **PASS**  |
+| Input                        | Expected Result                                                  | Actual Result                                                           | PASS/FAIL |
+| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------- | --------- |
+| testing on file **sha256.c** | 0eb382a00674c80ec15b64799bf57ec38aa331b5eca0d0e3231311230f6ac31f | 38eca61c 78c8f046 899dd682 e2a0733f dfdb82c5 1de696cc 8d08eb5c 4ce1912f | **PASS**  |
 
 -----
 
 ## Features of the implementation
 ### File Checking
 A file must be succesfully opened in order to run the program. This is simply achieved by using ``fopen()`` and a check for ``NULL``. If a file isn't provided as an argument the user can enter a file name and then that file will be checked. 
-```
+```cs
 	FILE *file;
 
 	// Check if file was entered as cmd argument.
@@ -158,19 +159,22 @@ A file must be succesfully opened in order to run the program. This is simply ac
 Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored first.
 
 To check if a machine uses big-endian or little-indian the following macro was used :
+
+```c
+	#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 ```
-#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
-```
+
 The above code illustrates the comparison between an integer being compared against a cast character string  integer.
 
 ### Convert little-endian to big-endian
-```
-#define CONVERT_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 
+```c
+	#define CONVERT_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 ```
+
 ### Convert big-endian to little-endian
-```
-#define CONVERT_UINT64(x)                                                      
+```c
+	#define CONVERT_UINT64(x) 
 	((((x) >> 56) & 0x00000000000000FF) | (((x) >> 40) & 0x000000000000FF00) | 
 	 (((x) >> 24) & 0x0000000000FF0000) | (((x) >> 8 ) & 0x00000000FF000000) |  
 	 (((x) << 8 ) & 0x000000FF00000000) | (((x) << 24) & 0x0000FF0000000000) |  
