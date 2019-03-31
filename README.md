@@ -71,9 +71,10 @@ Navigate to the downloaded repository and enter	:
 This will compile the program and add a ``sha-256`` executable to the directory.
 
 ### Execute the program
-The program has been designed to work in 2 different ways:
+The program has been designed to work in 3 different ways:
 1. Enter file as a command line arguement. 
 2. Enter the filename as a string at runtime.
+3. Enter a string to be hashed at runtime.
 
 #### Command line arguemnt
 To hash a file from command line enter the executable and the file to be hashed.
@@ -85,8 +86,8 @@ To hash a file from command line enter the executable and the file to be hashed.
   <img src = "https://i.imgur.com/Pi8xTr9.png/">
 </p>
 
-#### Runtime
-The algorithm has be designed to check if a file was entered as an arguement. If not you will be given the option to enter the file when the program starts. Simply enter the path and filename. To run the program:
+#### Runtime (File input)
+The algorithm has be designed to check if a file was entered as an arguement. If not you will be given the option to slect **1** enter the file when the program starts. Simply enter the path and filename. To run the program:
 ```bash 
 > ./sha256 
 ```
@@ -94,6 +95,15 @@ The algorithm has be designed to check if a file was entered as an arguement. If
   <img src = "https://i.imgur.com/lqAhnvm.png/">
 </p>
 
+#### Runtime (String Input)
+The program allows for a user to enter a string to compute the checksum. Simply select option *2* at the main menu and enter the string. To run the program:
+```bash 
+> ./sha256 
+```
+
+<p align="center">
+  <img src = "https://i.imgur.com/Uum7y5k.png/">
+</p>
 
 -----
 
@@ -159,6 +169,8 @@ A file must be succesfully opened in order to run the program. This is simply ac
 ### File Writing
 After successfully processing the SHA-256 of an input the checksum is saved to a new file in a folder called ```saved-hashes```. As the file entered may contain a file path and an extension, using the libary ```<libgen.h>``` the path and extension are removed from the file. The new file name is appended with _.txt_ and then appended to the path _saved-hashes/_ to save the file.
 
+### User Input
+The program allows the user to enter a string to generate its checksum. This is done by saving the string to a file at ```test-files/userinput.txt"```. Once saved the sha 256 is calculated as normal.
 
 ### Endian Check
 Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored first.
