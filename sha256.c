@@ -47,17 +47,18 @@ uint32_t SIG1(uint32_t x);
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
-// Retrieve next message block
-// pass in file
-// pointer to msgblock
-// pointer to status
-// number of bits
+// Calculate the SHA256 hash of a file
+void sha256(FILE *file);
 int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits);
 int writeToFile(uint32_t hash[]);
 int writeToFileInput(char inputString[]);
 
-// Char pointer to hold file name
+// Filename to save.
+char fileName[100];
+char inputString[50];
+// Char pointer to hold file name extracted from path.
 char *basename(char *path);
+
 // Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
 #define CONVERT_UINT32(x) (((x) >> 24) | (((x)&0x00FF0000) >> 8) | (((x)&0x0000FF00) << 8) | ((x) << 24))
 #define CONVERT_UINT64(x)                                                      \
@@ -69,15 +70,18 @@ char *basename(char *path);
 //https://www.reddit.com/r/C_Programming/comments/2wji9z/endianness_bugs/
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 
-// Calculate the SHA256 hash of a file
-void sha256(FILE *file);
-
-// Filename to save.
-char fileName[100];
-char inputString[50];
-
 /*
-* ================================ Main Method ================================
+ * Function:  main 
+ * --------------------
+ * The main method that runs the program.
+ * Launchs a main menu when ran. If a parameter is detected it is checked if its a valid file.
+ * If no parameter entered the option for a user to enter a filename is available.
+ * 
+ * *argc: the number of parameters used.
+ * 
+ * *argv[]: An array of parameter names.
+ * 
+ * returns: an int value. 
 */
 int main(int argc, char *argv[])
 {
@@ -104,8 +108,8 @@ int main(int argc, char *argv[])
 		{
 			printf("Please enter a string: ");
 			scanf("%s", inputString);
-			writeToFileInput(inputString);
-			strcpy(fileName,"test-files/userinput.txt");
+			writeToFileInput(inputString); // write the users input to a file.
+			strcpy(fileName, "test-files/userinput.txt");
 		}
 		else
 		{
@@ -131,14 +135,20 @@ int main(int argc, char *argv[])
 		printf("test for %s.....\n", fileName);
 		sha256(file);
 	}
-
 	return 0;
 }
 
 // ================================ SHA 256 Hash Computation ================================
 
-/**
- * Sha256 
+/*
+ * Function:  sha256 
+ * --------------------
+ * Computes the sha256 checksum for the specified input as specified by NIST.
+ * For a detailed explanation on each step please view the README.md file.
+ * 
+ * *file: a pointer to the file containing the input.
+ * 
+ * returns: void
 */
 void sha256(FILE *file)
 {
@@ -255,8 +265,6 @@ void sha256(FILE *file)
 
 	} // End of while loop.
 
-	// ================================ DEBUG AND TESTING ================================
-
 	// Print the hash value.
 	printf("\nSHA-256 Checksum: %08x%08x%08x%08x%08x%08x%08x%08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
 
@@ -266,13 +274,21 @@ void sha256(FILE *file)
 
 // ================================ NEXT MESSAGE BLOCK ================================
 
-/**
- * Retrieve next message block
- * pass in file
- * pointer to msgblock
- * pointer to status
- * number of bits
- */
+/*
+ * Function:  nextmsgblock 
+ * --------------------
+ * Proccesses each message block  for hashing.
+ * 
+ * *file: a pointer to the file containing the input
+ * 
+ * *M: pointer to the messqage block.
+ * 
+ * *S: the current status and state of the running computation.
+ * 
+ * *nobits: the number of bits read in the file.
+ * 
+ * returns: a integer value that can be used to validate success.
+*/
 int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits)
 {
 
@@ -370,29 +386,20 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 		*S = PAD1;
 	}
 
-	// FOR DEBUG
-	/*
-	int counter;
-	for (counter = 0; counter < 64; counter++)
-	{
-		// Print elements of M as 64 individual bytes.
-		printf("%x  ", M->e[counter]);
-	}
-	printf("\n %d\n", counter);
-	for (int i = 0; i < 8; i++)
-	{
-		// Print elements of M as 64 individual bytes.
-		printf("%08x ", M->s[i]);
-	}
-	printf("\n");
-*/
 	// If we get this far , then return 1 to call this function again.
 	return 1;
 }
 
 // ================================ Write to file ================================
-/**
- * Save the hash checksum to a file.
+
+/*
+ * Function:  writeToFile 
+ * --------------------
+ * Writes the hash checksum to a file.
+ * 
+ * hash[]: a uint32_tarray containing the checksum.
+ * 
+ * returns: a integer value that can be used to validate success.
 */
 int writeToFile(uint32_t hash[])
 {
@@ -436,8 +443,15 @@ int writeToFile(uint32_t hash[])
 	printf("File created and checksum saved.\n");
 	return 1;
 }
-/**
- * Save the user input to string.
+
+/*
+ * Function:  writeToFileInput 
+ * --------------------
+ * Writes the users input to a file.
+ * 
+ * inputString[]:  a char array.
+ * 
+ * returns: a integer value that can be used to validate success.
 */
 int writeToFileInput(char inputString[])
 {
@@ -464,28 +478,40 @@ int writeToFileInput(char inputString[])
 }
 // ================================ Bit operations ================================
 
-/**
- * Rotate right
- * Rotate x rigth by n places. Place overhanging bits back to begining.
+/*
+ * Function:  rotr 
+ * --------------------
+ * Rotate bit x by a places,Place overhanging bits back to begining.
+ * Rotate x right by n places. 
  * See section 3.2
+ * 
+ * returns: a uint32_t value 
  */
 uint32_t rotr(uint32_t x, uint32_t a)
 {
 	return (x >> a) | (x << (32 - a));
 }
 
-/**
- * Shift right
- * Shift x n positions.
+/*
+ * Function:  shr 
+ * --------------------
+ * Shift bit x by b places.
+ * Rotate x right by n places. 
+ * See section 3.2
+ * 
+ * returns: a uint32_t value
  */
 uint32_t shr(uint32_t x, uint32_t b)
 {
 	return (x >> b);
 }
 
-/**
- * sig0
+/*
+ * Function:  sig0 
+ * --------------------
  * Rotate right with 7 XOR it with rotate right 18 and XOR it with shift right 3.
+ * 
+ * returns: a uint32_t value
  */
 uint32_t sig0(uint32_t x)
 {
@@ -493,9 +519,12 @@ uint32_t sig0(uint32_t x)
 	return (rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3));
 }
 
-/**
- * sig1
+/*
+ * Function:  sig1
+ * --------------------
  * Rotate right by 17 XOR it with rotate right by 19 and XOR it with shift right by 10.
+ * 
+ * returns: a uint32_t value
  */
 uint32_t sig1(uint32_t x)
 {
@@ -503,9 +532,12 @@ uint32_t sig1(uint32_t x)
 	return (rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10));
 }
 
-/**
- * SIG0
+/*
+ * Function: SIG0
+ * --------------------
  * Rotate right by 2 XOR it with rotate right by 13 and XOR it with rotate right by 22.
+ * 
+ * returns: a uint32_t value
  */
 uint32_t SIG0(uint32_t x)
 {
@@ -513,29 +545,38 @@ uint32_t SIG0(uint32_t x)
 }
 
 /**
- * SIG1
+ * Function: SIG1
+ * --------------------
  * Rotate right by 6 XOR it with rotate right by 11 and XOR it with shift right by 10.
+ * 
+ * returns: a uint32_t value
  */
 uint32_t SIG1(uint32_t x)
 {
 	return (rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25));
 }
 
-/**
- * Ch - Choose
+/*
+ * Function : Ch - choose
+ * --------------------
  * x input chooses if the output is from y or from z.
  * For each bit index, that result bit is according to the bit from y (or respectively z ) at this index, 
  * depending on if the bit from x at this index is 1 (or respectively 0).
+ * 
+ * returns: a uint32_t value
  */
 uint32_t Ch(uint32_t x, uint32_t y, uint32_t z)
 {
 	return ((x & y) ^ (~(x)&z));
 }
 
-/**
- * Maj - Majority
+/*
+ * Function: Maj - Majority
+ * --------------------
  * for each bit index, that result bit is according to the majority of the 3 inputs bits 
- *  for x y and z at this index.
+ * for x y and z at this index.
+ * 
+ * returns: a uint32_t value
  */
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z)
 {

@@ -234,6 +234,7 @@ To outline an example the code uses 2 methods for file reading. These methods co
 	int writeToFileInput(char inputString[])
 ```
 
+Although it works as it should I would also (given more time) propose to extract the menu operations from the main method, just to pretify the code.
 ----
 
 ## References
