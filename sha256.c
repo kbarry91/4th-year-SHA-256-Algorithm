@@ -75,25 +75,22 @@ int main(int argc, char *argv[])
 	// File pointer.
 	FILE *file;
 	char fileName[100];
-	int c = 0;
-	// Open the file from first cmdline argument.
-	//.================ TODO ERROR CHECK
 
-	printf("========= Secure Hash Algorithim ========= \n");
+	printf("\n========= Secure Hash Algorithim ========= \n");
 
-	// Check if file was entered as cmd arguement.
+	// Check if file was entered as cmd argument.
 	if (argv[1] == NULL)
 	{
-		printf("No file specified as arguement.\nPlease enter a file name:\n");
+		printf("No file specified as argument.\nPlease enter a file name: ");
 		scanf("%s", fileName);
-		printf("Searching for %s\n",fileName);
+		printf("Searching for %s.....\n",fileName);
 		
 		file = fopen(fileName, "r");
 	}else{
 		file = fopen(argv[1], "r");
 	}
 
-	// Check if file opend succesfully.
+	// Check if file openedd succesfully.
 	if (file == NULL)
 	{
 		printf("[ERROR]: Could not open file.\n");
@@ -101,7 +98,7 @@ int main(int argc, char *argv[])
 	else
 	{
 		// Run Secure Hash Algorithim on the file.
-		printf("[FILE READ SUCCESS]: Now running sha256\n");
+		printf("[FILE READ SUCCESS]: Now running sha256 Hash Computation.....\n");
 		sha256(file);
 	}
 
@@ -123,7 +120,6 @@ void sha256(FILE *file)
 
 	// set status to read() status of message block in terms of padding
 	enum status S = READ;
-	// TODO add check file success!!!!!
 
 	/*
  * The K constants.
@@ -227,8 +223,8 @@ void sha256(FILE *file)
 	// ================================ DEBUG AND TESTING ================================
 
 	// Print the hash value.
-	printf("Hash: %08x%08x%08x%08x%08x%08x%08x%08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
-	writeToFile("somename", H);
+	printf("\nSHA-256 Checksum: %08x%08x%08x%08x%08x%08x%08x%08x \n", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);
+	//writeToFile("somename", H);
 } // void sha256()
 
 // ================================ NEXT MESSAGE BLOCK ================================
