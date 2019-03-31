@@ -43,7 +43,7 @@ Each Message block _M<sub>(1)</sub>, M<sub>(2)</sub>,.... M<sub>(N)</sub>_ is pr
 
 After repeating steps one to four _N_ times the resulting 256-bit message digest of _M_ is _H<sub>(0)</sub><sup>(N)</sup>_, _H<sub>(1)</sub><sup>(N)</sub>_,......_H<sub>(7)</sub><sup>(N)</sup>_.
 
-
+---
 
 ## Prerequisites
 The only requirement for this program is a C compiler. There is 2 ways to do so
@@ -87,7 +87,7 @@ To hash a file from command line enter the executable and the file to be hashed.
 </p>
 
 #### Runtime (File input)
-The algorithm has be designed to check if a file was entered as an arguement. If not you will be given the option to slect **1** enter the file when the program starts. Simply enter the path and filename. To run the program:
+The algorithm has be designed to check if a file was entered as an arguement. If not you will be given the option to select **1** and enter the file name. Simply enter the path and filename. To run the program:
 ```bash 
 > ./sha256 
 ```
