@@ -179,8 +179,15 @@ void sha256(FILE *file)
 		// Page 22, W[t]= M[t] for 0 <= t <= 15.
 		for (t = 0; t < 16; t++)
 		{
-			// Set message to be hased with big endian conversion.
-			W[t] = CONVERT_UINT32(M.t[t]);
+			if (IS_BIG_ENDIAN) // check if system is big endian
+			{
+				W[t] = M.t[t];
+			}
+			else
+			{
+				// Set message to be hased with big endian conversion.
+				W[t] = CONVERT_UINT32(M.t[t]);
+			}
 		}
 		// Page 22, W[t]= ...
 		for (t = 16; t < 64; t++)
@@ -368,7 +375,7 @@ int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits
 */
 int writeToFile(uint32_t hash[])
 {
-	// File pointer to hold reference to our file.
+	// File pointer to hold reference to file.
 	FILE *fileToCreate;
 	char path[] = "saved-hashes/";
 	char *basec, *bname;
@@ -388,7 +395,6 @@ int writeToFile(uint32_t hash[])
 	strcat(bname, ".txt");
 	// Append name to path.
 	strcat(path, bname);
-
 	// Open file in w (write) mode.
 	fileToCreate = fopen(path, "w");
 
