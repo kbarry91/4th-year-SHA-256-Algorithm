@@ -53,17 +53,20 @@ The only requirement for this program is a C compiler. There is 2 ways to do so
 -----
 
 ## Running the program
+
 ### Download
+
 Clone this reposiory to your machine.
 - Navigate to directory
 - In command prompt 
-  ```  
+```bash
 	> git clone https://github.com/kbarry91/4th-year-SHA-256-Algorithm.git
-	```
-### Compile the program
-Navigate to the downloaded repository and enter	:
 ```
-> gcc -o sha-256 sha-256.c
+### Compile the program
+
+Navigate to the downloaded repository and enter	:
+```bash
+	> gcc -o sha-256 sha-256.c
 ```	
 This will compile the program and add a ``sha-256`` executable to the directory.
 
@@ -74,7 +77,7 @@ The program has been designed to work in 2 different ways:
 
 #### Command line arguemnt
 To hash a file from command line run enter the executable and the file to be hashed.
-```
+```bash
 > ./sha256 filename.txt_
 ```
 
@@ -84,13 +87,12 @@ To hash a file from command line run enter the executable and the file to be has
 
 #### Runtime
 The algorithm has be designed to check if a file was entered as an arguement. If not you will be given the option to enter the file when the program starts. Simply enter the path and filename. To run the program:
-```
+```bash 
 > ./sha256 
 ```
 <p align="center">
   <img src = "https://i.imgur.com/lqAhnvm.png/">
 </p>
-
 
 
 -----
@@ -154,6 +156,9 @@ A file must be succesfully opened in order to run the program. This is simply ac
 	}
 
 ```
+### File Writing
+After successfully processing the SHA-256 of an input the checksum is saved to a new file in a folder called ```saved-hashes```. As the file entered may contain a file path and an extension, using the libary ```<libgen.h>``` the path and extension are removed from the file. The new file name is appended with _.txt_ and then appended to the path _saved-hashes/_ to save the file.
+
 
 ### Endian Check
 Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored first.
@@ -192,7 +197,7 @@ Below is as list of some other resources used to conduct research:
 - [DI Management](https://www.di-mgt.com.au/sha_testvectors.html)
 - [Binary representations](https://www.geeksforgeeks.org/little-and-big-endian-mystery/)
 - [SHA Standard](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)
-  
+- [String Manipulation](https://linux.die.net/man/3/basename)
 
 
 [^policies] : This project complies with the Quality Assurance Framework at GMIT which includes the Code of Student Conduct and the Policy on Plagiarism.

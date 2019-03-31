@@ -389,17 +389,13 @@ int writeToFile(uint32_t hash[])
 	// Append name to path.
 	strcat(path, bname);
 
-	/* 
-     * Open file in w (write) mode.
-     */
+	// Open file in w (write) mode.
 	fileToCreate = fopen(path, "w");
 
 	// fopen() return NULL if last operation was unsuccessful.
 	if (fileToCreate == NULL)
 	{
-		// File not created hence exit.
 		printf("Unable to create file.\n");
-
 		return 0;
 	}
 
@@ -409,9 +405,8 @@ int writeToFile(uint32_t hash[])
 	// Close file to save file data.
 	fclose(fileToCreate);
 
-	// Success message. 
+	// Success message.
 	printf("File created and checksum saved.\n");
-
 	return 1;
 }
 
