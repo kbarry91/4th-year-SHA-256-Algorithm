@@ -54,6 +54,8 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 // number of bits
 int nextmsgblock(FILE *file, union msgblock *M, enum status *S, uint64_t *nobits);
 int writeToFile(uint32_t hash[]);
+int writeToFileInput(char inputString[]);
+
 // Char pointer to hold file name
 char *basename(char *path);
 // Adapted from - http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
@@ -72,6 +74,7 @@ void sha256(FILE *file);
 
 // Filename to save.
 char fileName[100];
+char inputString[50];
 
 /*
 * ================================ Main Method ================================
@@ -80,16 +83,34 @@ int main(int argc, char *argv[])
 {
 	// File pointer.
 	FILE *file;
-
+	int menuOption;
 	printf("\n========= Secure Hash Algorithim ========= \n");
 
 	// Check if file was entered as cmd argument.
 	if (argv[1] == NULL)
 	{
-		printf("No file specified as argument.\nPlease enter a file name: ");
-		scanf("%s", fileName);
-		printf("Searching for %s.....\n", fileName);
+		printf("No file specified as argument please select an option 1 or 2.\n");
+		printf("1: Calculate checksum from file\n");
+		printf("2: Calculate checksum from a string\n");
+		scanf("%d", &menuOption);
 
+		if (menuOption == 1)
+		{
+			printf("Please enter a file name: ");
+			scanf("%s", fileName);
+			printf("Searching for %s.....\n", fileName);
+		}
+		else if (menuOption == 2)
+		{
+			printf("Please enter a string: ");
+			scanf("%s", inputString);
+			writeToFileInput(inputString);
+			strcpy(fileName,"test-files/userinput.txt");
+		}
+		else
+		{
+			printf("Invalid option ");
+		}
 		file = fopen(fileName, "r");
 	}
 	else
@@ -415,7 +436,32 @@ int writeToFile(uint32_t hash[])
 	printf("File created and checksum saved.\n");
 	return 1;
 }
+/**
+ * Save the user input to string.
+*/
+int writeToFileInput(char inputString[])
+{
+	// File pointer to hold reference to file.
+	FILE *inputFile;
+	char path[] = "test-files/userinput.txt";
 
+	// Open file in w (write) mode.
+	inputFile = fopen(path, "w");
+
+	// fopen() return NULL if last operation was unsuccessful.
+	if (inputFile == NULL)
+	{
+		printf("Unable to create file.\n");
+		return 0;
+	}
+
+	// Write data to file .
+	fputs(inputString, inputFile);
+	// Close file to save file data.
+	fclose(inputFile);
+
+	return 1;
+}
 // ================================ Bit operations ================================
 
 /**

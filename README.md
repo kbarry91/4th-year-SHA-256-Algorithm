@@ -1,5 +1,5 @@
 # 4th-year-SHA-256-Algorithm
-This repository contains a project completed for GMIT's Theory of Algorithms module. It involves writing a program in the C programming language to perform the Secure Hash Algorithm (SHA) algorithm , speciﬁcally the 256-bit version known as SHA-256. The implementation is a single C file thats calculates the **SHA-256** checksum of an input.The algorithm is based on the Secure Hash Standard document supplied by the  [National Institute of Standard and Technology](https://www.nist.gov/publications/secure-hash-standard).
+This repository contains a project completed for GMIT's Theory of Algorithms module. It involves writing a program in the C programming language to perform the Secure Hash Algorithm (SHA) algorithm , speciﬁcally the 256-bit version known as SHA-256. The implementation is a single C file thats calculates the **SHA-256** checksum of an input. The algorithm is based on the Secure Hash Standard document supplied by the  [National Institute of Standard and Technology](https://www.nist.gov/publications/secure-hash-standard).
 
 -----
 
@@ -24,8 +24,8 @@ Before SHA-256 can be performed on an input some preproccesing is required. The 
 
 ### Steps
 - Read 64bytes at a time from file to our message block.
-- If last fread < 56 bytes put all padding into last message block( add a "1" bit and 7 "0" bits).
-- If we dont have 9bytes left at the end of the block:
+- If last fread < 56 bytes put all padding into last message block (add a "1" bit and 7 "0" bits).
+- If we dont have enough bytes left at the end of the block:
   - Create new message block.
   - Only contains padding.
 - If file was exactly 512 bits:
@@ -41,7 +41,7 @@ Each Message block _M<sub>(1)</sub>, M<sub>(2)</sub>,.... M<sub>(N)</sub>_ is pr
 3. For t=0 to 63  create new values for working variables.
 4. Compute the _i<sup>th</sup>_ intermediate hash value _H<sup>(i)</sup>_:
 
-After repesting steps one to four _N_ times the resulting 256-bit message digest of _M_ is _H<sub>(0)</sub><sup>(N)</sup>_, _H<sub>(1)</sub><sup>(N)</sub>_,......_H<sub>(7)</sub><sup>(N)</sup>_.
+After repeating steps one to four _N_ times the resulting 256-bit message digest of _M_ is _H<sub>(0)</sub><sup>(N)</sup>_, _H<sub>(1)</sub><sup>(N)</sub>_,......_H<sub>(7)</sub><sup>(N)</sup>_.
 
 
 
@@ -76,9 +76,9 @@ The program has been designed to work in 2 different ways:
 2. Enter the filename as a string at runtime.
 
 #### Command line arguemnt
-To hash a file from command line run enter the executable and the file to be hashed.
+To hash a file from command line enter the executable and the file to be hashed.
 ```bash
-> ./sha256 filename.txt_
+> ./sha256 filename.txt
 ```
 
 <p align="center">
@@ -163,7 +163,7 @@ After successfully processing the SHA-256 of an input the checksum is saved to a
 ### Endian Check
 Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored first.
 
-To check if a machine uses big-endian or little-indian the following macro was used :
+To check if a machine uses big-endian or little-endian the following macro was used :
 
 ```c
 	#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
